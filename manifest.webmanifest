@@ -1,7 +1,7 @@
 {
   "name": "BTCサイクル比較",
   "short_name": "BTCサイクル",
-  "description": "BTCのATH後下落率、同日数比較、ATHから次ATH、底から天井までのサイクル比較を確認するアプリ",
+  "description": "BTCのATH後下落率、同日数比較、底値倍率、購入検討時期の目安を確認するアプリ",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#07111f",
