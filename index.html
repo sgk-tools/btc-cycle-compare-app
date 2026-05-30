@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BTCサイクル比較">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>BTCサイクル比較</title>
+  <style>
+    :root{
+      --bg:#07111f;
+      --panel:#0f1d33;
+      --panel2:#13233c;
+      --line:#294463;
+      --text:#e9f2ff;
+      --muted:#a9bad0;
+      --blue:#37b8ed;
+      --cyan:#2bd4d2;
+      --red:#ff6384;
+      --yellow:#ffcc33;
+      --green:#36d399;
+      --orange:#ff9f40;
+      --danger:#3d0f1f;
+      --ok:#082d3d;
+      --white:#fff;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;font-size:15px;}
+    body{min-height:100vh;padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+    .wrap{width:min(760px,100%);margin:0 auto;padding:18px 14px 28px;}
+    header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+    h1{font-size:22px;line-height:1.15;margin:0 0 5px;font-weight:800;letter-spacing:.02em;}
+    .sub{font-size:12px;color:var(--muted);line-height:1.5;}
+    .statusTop{font-size:11px;color:var(--muted);text-align:right;line-height:1.4;white-space:nowrap;padding-top:4px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+    .card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:13px;box-shadow:var(--shadow);min-height:92px;}
+    .label{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.35;}
+    .value{font-size:24px;font-weight:850;line-height:1.2;letter-spacing:.01em;}
+    .value.red{color:var(--red)}
+    .value.green{color:var(--green)}
+    .small{font-size:12px;color:var(--muted);line-height:1.45;margin-top:6px;}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+    button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;font-size:15px;font-weight:800;min-height:52px;padding:12px 10px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+    button.primary{background:linear-gradient(180deg,#48c7f5,#2aaee5);color:#00101a;border-color:#57d6ff;}
+    button:active{transform:translateY(1px)}
+    .msg{display:none;border-radius:12px;padding:12px;margin:10px 0;font-size:12px;line-height:1.55;white-space:pre-wrap;border:1px solid transparent;}
+    .msg.show{display:block}
+    .msg.ok{background:var(--ok);border-color:#1386a7;color:#dff8ff}
+    .msg.err{background:var(--danger);border-color:#a33a56;color:#ffe8ee}
+    .section{margin-top:18px;}
+    .section h2{font-size:16px;margin:0 0 10px;font-weight:850;}
+    .judgement{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:13px;box-shadow:var(--shadow);font-size:13px;line-height:1.65;}
+    .judgement b{color:var(--white)}
+    .tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-bottom:10px;}
+    .miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .miniCard{background:#0b1729;border:1px solid var(--line);border-radius:12px;padding:10px 11px;}
+    .miniLabel{font-size:11px;color:var(--muted);margin-bottom:4px;}
+    .miniValue{font-size:14px;font-weight:800;color:var(--text);line-height:1.35;}
+    .tab{min-height:44px;padding:9px 6px;font-size:12px;font-weight:800;border-radius:11px;}
+    .tab.active{background:#1f78a8;border-color:#54cfff;color:#fff;}
+    .chartBox{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:10px;box-shadow:var(--shadow);}
+    .chartInner{border:1px solid #243e5d;border-radius:10px;background:#07111f;padding:7px;overflow:hidden;}
+    canvas{display:block;width:100%;height:310px;}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 2px 4px;font-size:12px;color:var(--muted);}
+    .leg{display:inline-flex;align-items:center;gap:5px;border:1px solid #274461;border-radius:999px;padding:5px 8px;background:#0b1729;}
+    .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+    .note{font-size:12px;color:var(--muted);line-height:1.55;margin:8px 2px 0;}
+    .tableWrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#081526;box-shadow:var(--shadow);}
+    table{width:100%;border-collapse:collapse;min-width:720px;font-size:12px;}
+    th,td{padding:10px 9px;border-bottom:1px solid #1f3653;text-align:left;white-space:nowrap;}
+    th{background:#0d1a2d;color:#cfe2f7;font-weight:800;position:sticky;top:0;}
+    td{color:#e7f1ff;}
+    .muted{color:var(--muted)}
+    details{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:11px 13px;}
+    summary{font-weight:800;cursor:pointer;}
+    .manual{font-size:12px;color:var(--muted);line-height:1.65;margin-top:10px;}
+    .footer{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.55;}
+    @media (max-width:560px){
+      .wrap{padding:14px 10px 24px;}
+      h1{font-size:20px;}
+      .grid{grid-template-columns:1fr 1fr;gap:8px;}
+      .card{padding:11px;min-height:88px;}
+      .label{font-size:11px;}
+      .value{font-size:22px;}
+      .actions{grid-template-columns:1fr 1fr;gap:8px;}
+      button{font-size:14px;min-height:50px;}
+      .tabs{grid-template-columns:1fr 1fr;gap:6px;}
+      .tab{font-size:11px;min-height:42px;}
+      .miniGrid{grid-template-columns:1fr 1fr;}
+      canvas{height:285px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>BTCサイクル比較</h1>
+        <div class="sub">ATH後下落率・同日数比較・次回半減期ATH候補</div>
+      </div>
+      <div class="statusTop" id="topStatus">未取得</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">BTC価格</div>
+        <div class="value" id="latestPrice">--</div>
+        <div class="small" id="latestDate">--</div>
+      </div>
+      <div class="card">
+        <div class="label">現在サイクルATHからの下落率</div>
+        <div class="value red" id="currentDd">--</div>
+        <div class="small" id="currentAth">--</div>
+      </div>
+      <div class="card">
+        <div class="label">現在ATH後の日数</div>
+        <div class="value" id="athDays">--</div>
+        <div class="small" id="athBasis">ATH基準：--</div>
+      </div>
+      <div class="card">
+        <div class="label">前回ATH後 同日数下落率</div>
+        <div class="value red" id="prevSameDayDd">--</div>
+        <div class="small" id="prevSameDayBasis">同日数比較：--</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="fetchBtn">最新データ取得</button>
+      <button id="loadBtn">保存データ表示</button>
+    </div>
+
+    <div class="msg" id="message"></div>
+
+    <div class="section">
+      <h2>補助情報</h2>
+      <div class="miniGrid">
+        <div class="miniCard">
+          <div class="miniLabel">2024年半減期からの日数</div>
+          <div class="miniValue" id="halvingDays">--</div>
+        </div>
+        <div class="miniCard">
+          <div class="miniLabel">次回半減期（推定）</div>
+          <div class="miniValue" id="nextHalvingDate">--</div>
+        </div>
+        <div class="miniCard">
+          <div class="miniLabel">次回ATH候補（2020型）</div>
+          <div class="miniValue" id="nextAth2020Pattern">--</div>
+        </div>
+        <div class="miniCard">
+          <div class="miniLabel">次回ATH候補（2024型）</div>
+          <div class="miniValue" id="nextAth2024Pattern">--</div>
+        </div>
+        <div class="miniCard">
+          <div class="miniLabel">次回ATH候補（平均）</div>
+          <div class="miniValue" id="nextAthAvgPattern">--</div>
+        </div>
+        <div class="miniCard">
+          <div class="miniLabel">現在ATH</div>
+          <div class="miniValue" id="auxAth">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>現在位置</h2>
+      <div class="judgement" id="judgement">データ未取得。最新データ取得を押す。</div>
+    </div>
+
+    <div class="section">
+      <h2>チャート比較</h2>
+      <div class="tabs">
+        <button class="tab active" data-mode="sameDays">同日数比較</button>
+        <button class="tab" data-mode="athToAth">ATH→次ATH</button>
+        <button class="tab" data-mode="bottomToAth">底→天井</button>
+        <button class="tab" data-mode="full">全期間</button>
+      </div>
+      <div class="chartBox">
+        <div class="chartInner"><canvas id="chart"></canvas></div>
+        <div class="legend" id="legend"></div>
+        <div class="note" id="chartNote">同日数比較：現在のATH後日数に合わせ、過去サイクルも同じ日数で切る。</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>サイクル別比較</h2>
+      <div class="tableWrap">
+        <table>
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <details>
+      <summary>使い方・注意</summary>
+      <div class="manual">
+        ・標準は「同日数比較」。現在がATH後236日なら、過去サイクルもATH後236日までで比較する。<br>
+        ・「ATH→次ATH」は、天井から次の大きな天井までの実日数を比較する。線の長さの違いも情報として見る。<br>
+        ・「底→天井」は、弱気相場の底を基準に次の大きな天井までの底値比上昇率を見る。現在ATH後の底は未確定なので暫定表示。<br>
+        ・補助情報の次回半減期は、2024年半減期から210,000ブロック×10分で計算した概算。実際の日付はブロック生成速度で前後する。<br>        ・次回ATH候補は、2020半減期→前回ATH、2024半減期→現在ATHの日数を、次回半減期推定日に加算した機械計算。予測ではない。<br>        ・数値はBinance BTCUSDTの日足終値ベース。取引所や日足基準により、一般的なATH表記と差が出る。<br>
+        ・2013年サイクルはBinance日足データ開始前のため未搭載。<br>
+        ・このアプリは位置確認用。買い・売り判断は、価格条件、マクロ環境、資金量、税金、心理的負担を別に確認する。
+      </div>
+    </details>
+
+    <div class="footer">
+      v1.6 / GitHub Pages・iPhone Safari対応 / APIキー不要 / localStorage保存<br>
+      取得元：Binance Spot API BTCUSDT daily klines
+    </div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  const APP_VERSION = '1.6';
+  const STORAGE_KEY = 'btc_cycle_anomaly_v1_6_data';
+  const MODE_KEY = 'btc_cycle_anomaly_v1_6_mode';
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const START_MS = Date.UTC(2017, 7, 17);
+  const HALVING_2020_MS = Date.UTC(2020, 4, 11);
+  const HALVING_2024_MS = Date.UTC(2024, 3, 20);
+  const NEXT_HALVING_EST_MS = HALVING_2024_MS + 210000 * 10 * 60 * 1000;
+  const ENDPOINTS = [
+    'https://api.binance.com',
+    'https://api-gcp.binance.com',
+    'https://api1.binance.com',
+    'https://api2.binance.com',
+    'https://api3.binance.com',
+    'https://api4.binance.com'
+  ];
+  const COLORS = {
+    cycle2017: '#ffcc33',
+    prevCycle: '#36d399',
+    current: '#ff6384',
+    full: '#37b8ed'
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const state = {
+    candles: [],
+    source: '',
+    savedAt: '',
+    mode: localStorage.getItem(MODE_KEY) || 'sameDays',
+    analysis: null
+  };
+
+  function fmtUsd(v) {
+    if (!Number.isFinite(v)) return '--';
+    return '$' + Math.round(v).toLocaleString('en-US');
+  }
+
+  function fmtPct(v) {
+    if (!Number.isFinite(v)) return '--';
+    const sign = v > 0 ? '+' : '';
+    return sign + v.toFixed(1) + '%';
+  }
+
+  function fmtAxisPct(v) {
+    if (!Number.isFinite(v)) return '--';
+    if (Math.abs(v) < 0.05) return '0.0%';
+    const sign = v > 0 ? '＋' : '−';
+    return sign + Math.abs(v).toFixed(1) + '%';
+  }
+
+  function fmtMultipleFromPct(v) {
+    if (!Number.isFinite(v)) return '--';
+    return ((100 + v) / 100).toFixed(2) + '倍';
+  }
+
+  function fmtDate(ms) {
+    if (!Number.isFinite(ms)) return '--';
+    const d = new Date(ms);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function parseDate(s) {
+    const [y, m, d] = s.split('-').map(Number);
+    return Date.UTC(y, m - 1, d);
+  }
+
+  function daysBetween(a, b) {
+    return Math.round((b - a) / DAY_MS);
+  }
+
+  function setMessage(text, type) {
+    const el = $('message');
+    if (!text) {
+      el.className = 'msg';
+      el.textContent = '';
+      return;
+    }
+    el.className = 'msg show ' + (type || 'ok');
+    el.textContent = text;
+  }
+
+  function updateTopStatus(text) {
+    $('topStatus').innerHTML = text || '未取得';
+  }
+
+  async function fetchJson(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  async function fetchKlinesFromBase(base) {
+    const out = [];
+    let start = START_MS;
+    const end = Date.now();
+    for (let i = 0; i < 20; i++) {
+      const url = `${base}/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=${start}&endTime=${end}&limit=1000`;
+      const rows = await fetchJson(url);
+      if (!Array.isArray(rows) || rows.length === 0) break;
+      for (const row of rows) {
+        const t = Number(row[0]);
+        const close = Number(row[4]);
+        if (Number.isFinite(t) && Number.isFinite(close)) out.push({ t, close });
+      }
+      const lastOpen = Number(rows[rows.length - 1][0]);
+      const next = lastOpen + DAY_MS;
+      if (!Number.isFinite(next) || next <= start) break;
+      start = next;
+      if (Date.now() - start < DAY_MS) break;
+      await new Promise(resolve => setTimeout(resolve, 120));
+    }
+    const unique = new Map();
+    for (const c of out) unique.set(c.t, c);
+    return Array.from(unique.values()).sort((a, b) => a.t - b.t);
+  }
+
+  async function fetchAllData() {
+    const errors = [];
+    for (const base of ENDPOINTS) {
+      try {
+        updateTopStatus('取得中<br>' + base.replace('https://', ''));
+        const candles = await fetchKlinesFromBase(base);
+        if (candles.length < 1000) throw new Error('データ不足 ' + candles.length + '本');
+        return { candles, source: base };
+      } catch (err) {
+        errors.push(base + ' : ' + err.message);
+      }
+    }
+    throw new Error(errors.join('\n'));
+  }
+
+  function saveData() {
+    const payload = {
+      version: APP_VERSION,
+      candles: state.candles,
+      source: state.source,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  }
+
+  function loadSavedData() {
+    const raw = localStorage.getItem(STORAGE_KEY)
+      || localStorage.getItem('btc_cycle_anomaly_v1_5_data')
+      || localStorage.getItem('btc_cycle_anomaly_v1_4_data')
+      || localStorage.getItem('btc_cycle_anomaly_v1_3_data')
+      || localStorage.getItem('btc_cycle_anomaly_v1_2_data');
+    if (!raw) throw new Error('保存データがない');
+    const data = JSON.parse(raw);
+    if (!data || !Array.isArray(data.candles) || data.candles.length === 0) throw new Error('保存データが不正');
+    state.candles = data.candles.map(c => ({ t: Number(c.t), close: Number(c.close) })).filter(c => Number.isFinite(c.t) && Number.isFinite(c.close));
+    state.source = data.source || '保存データ';
+    state.savedAt = data.savedAt || '';
+  }
+
+  function sliceRange(candles, startMs, endMs) {
+    return candles.filter(c => c.t >= startMs && c.t <= endMs);
+  }
+
+  function findMaxInRange(candles, startStr, endStr) {
+    const start = parseDate(startStr);
+    const end = parseDate(endStr);
+    const range = sliceRange(candles, start, end);
+    if (!range.length) return null;
+    return range.reduce((max, c) => c.close > max.close ? c : max, range[0]);
+  }
+
+  function findMinBetween(candles, startMs, endMs) {
+    const range = sliceRange(candles, startMs, endMs);
+    if (!range.length) return null;
+    return range.reduce((min, c) => c.close < min.close ? c : min, range[0]);
+  }
+
+  function buildSegment(candles, startCandle, maxDays, label, color, mode) {
+    if (!startCandle) return null;
+    const endMs = startCandle.t + maxDays * DAY_MS;
+    const range = sliceRange(candles, startCandle.t, endMs);
+    const points = range.map(c => {
+      const x = daysBetween(startCandle.t, c.t);
+      const y = (c.close / startCandle.close - 1) * 100;
+      return { x, y, t: c.t, price: c.close };
+    });
+    return { label, color, points, start: startCandle, mode };
+  }
+
+  function buildSegmentToEnd(candles, startCandle, endCandle, label, color, mode) {
+    if (!startCandle || !endCandle) return null;
+    const range = sliceRange(candles, startCandle.t, endCandle.t);
+    const points = range.map(c => ({
+      x: daysBetween(startCandle.t, c.t),
+      y: (c.close / startCandle.close - 1) * 100,
+      t: c.t,
+      price: c.close
+    }));
+    return { label, color, points, start: startCandle, end: endCandle, mode };
+  }
+
+  function statsForSegment(segment) {
+    if (!segment || !segment.points.length) return null;
+    const start = segment.start;
+    let min = segment.points[0];
+    for (const p of segment.points) if (p.y < min.y) min = p;
+    let recovery = null;
+    for (const p of segment.points) {
+      if (p.x > 0 && p.price >= start.close) {
+        recovery = p;
+        break;
+      }
+    }
+    const last = segment.points[segment.points.length - 1];
+    return { min, recovery, last, days: last.x };
+  }
+
+  function analyze(candles) {
+    if (!candles.length) return null;
+    const latest = candles[candles.length - 1];
+    const peak2017 = findMaxInRange(candles, '2017-11-01', '2018-02-28');
+    const peak2021 = findMaxInRange(candles, '2021-10-01', '2022-01-31');
+    const currentPeak = findMaxInRange(candles, '2024-01-01', fmtDate(latest.t));
+    if (!peak2017 || !peak2021 || !currentPeak) throw new Error('サイクル基準日の算出に失敗');
+
+    const currentDays = Math.max(0, daysBetween(currentPeak.t, latest.t));
+    const sameDaysSegments = [
+      buildSegment(candles, peak2017, currentDays, '2017天井後', COLORS.cycle2017, 'sameDays'),
+      buildSegment(candles, peak2021, currentDays, '前回天井後', COLORS.prevCycle, 'sameDays'),
+      buildSegment(candles, currentPeak, currentDays, '現在天井後', COLORS.current, 'sameDays')
+    ].filter(Boolean);
+
+    const athToAthSegments = [
+      buildSegmentToEnd(candles, peak2017, peak2021, '2017天井→前回天井', COLORS.cycle2017, 'athToAth'),
+      buildSegmentToEnd(candles, peak2021, currentPeak, '前回天井→現在天井', COLORS.prevCycle, 'athToAth'),
+      buildSegmentToEnd(candles, currentPeak, latest, '現在天井→現在', COLORS.current, 'athToAth')
+    ].filter(Boolean);
+
+    const bottom2018 = findMinBetween(candles, peak2017.t, peak2021.t);
+    const bottom2022 = findMinBetween(candles, peak2021.t, currentPeak.t);
+    const currentPostAthLow = findMinBetween(candles, currentPeak.t, latest.t);
+    const bottomToAthSegments = [
+      buildSegmentToEnd(candles, bottom2018, peak2021, '2018底→前回天井', COLORS.cycle2017, 'bottomToAth'),
+      buildSegmentToEnd(candles, bottom2022, currentPeak, '2022底→現在天井', COLORS.prevCycle, 'bottomToAth'),
+      buildSegmentToEnd(candles, currentPostAthLow, latest, '現在ATH後暫定底→現在', COLORS.current, 'bottomToAth')
+    ].filter(seg => seg && seg.points && seg.points.length);
+
+    const fullSegment = {
+      label: 'BTCUSDT 全期間',
+      color: COLORS.full,
+      points: candles.map(c => ({ x: c.t, y: c.close, t: c.t, price: c.close })),
+      mode: 'full'
+    };
+
+    return {
+      latest,
+      peak2017,
+      peak2021,
+      currentPeak,
+      currentDays,
+      currentDrawdown: (latest.close / currentPeak.close - 1) * 100,
+      halvingDays: daysBetween(HALVING_2024_MS, latest.t),
+      halvingToPrevAthDays: daysBetween(HALVING_2020_MS, peak2021.t),
+      halvingToCurrentAthDays: daysBetween(HALVING_2024_MS, currentPeak.t),
+      nextHalvingEst: NEXT_HALVING_EST_MS,
+      bottom2018,
+      bottom2022,
+      currentPostAthLow,
+      sameDaysSegments,
+      athToAthSegments,
+      bottomToAthSegments,
+      fullSegment
+    };
+  }
+
+  function compareText(analysis) {
+    const currentSeg = analysis.sameDaysSegments.find(s => s.label === '現在天井後');
+    const s2017 = analysis.sameDaysSegments.find(s => s.label === '2017天井後');
+    const sPrev = analysis.sameDaysSegments.find(s => s.label === '前回天井後');
+    const cur = statsForSegment(currentSeg)?.last?.y;
+    const y2017 = statsForSegment(s2017)?.last?.y;
+    const yPrev = statsForSegment(sPrev)?.last?.y;
+    const parts = [];
+    if (Number.isFinite(cur) && Number.isFinite(y2017)) {
+      parts.push(`2017天井後の同日数時点 ${fmtPct(y2017)} に対し、現在は ${fmtPct(cur)}。${cur > y2017 ? '2017型より下落は浅い。' : '2017型より下落は深い。'}`);
+    }
+    if (Number.isFinite(cur) && Number.isFinite(yPrev)) {
+      parts.push(`前回天井後の同日数時点 ${fmtPct(yPrev)} に対し、現在は ${fmtPct(cur)}。${cur > yPrev ? '前回天井後より下落は浅い。' : '前回天井後より下落は深い。'}`);
+    }
+    return parts.join('<br>');
+  }
+
+  function renderSummary() {
+    const a = state.analysis;
+    if (!a) return;
+    $('latestPrice').textContent = fmtUsd(a.latest.close);
+    $('latestDate').textContent = '取得日：' + fmtDate(a.latest.t);
+    $('currentDd').textContent = fmtPct(a.currentDrawdown);
+    $('currentAth').textContent = `ATH：${fmtDate(a.currentPeak.t)} / ${fmtUsd(a.currentPeak.close)}`;
+    $('halvingDays').textContent = a.halvingDays.toLocaleString('ja-JP') + '日';
+    $('athDays').textContent = a.currentDays.toLocaleString('ja-JP') + '日';
+    $('athBasis').textContent = 'ATH基準：' + fmtDate(a.currentPeak.t);
+    const prevSeg = a.sameDaysSegments.find(s => s.label === '前回天井後');
+    const prevSame = statsForSegment(prevSeg)?.last?.y;
+    $('prevSameDayDd').textContent = fmtPct(prevSame);
+    $('prevSameDayBasis').textContent = `同${a.currentDays.toLocaleString('ja-JP')}日 / ${fmtDate(a.peak2021.t)}基準`;
+    const nextAth2020 = a.nextHalvingEst + a.halvingToPrevAthDays * DAY_MS;
+    const nextAth2024 = a.nextHalvingEst + a.halvingToCurrentAthDays * DAY_MS;
+    const avgDays = Math.round((a.halvingToPrevAthDays + a.halvingToCurrentAthDays) / 2);
+    const nextAthAvg = a.nextHalvingEst + avgDays * DAY_MS;
+    $('nextHalvingDate').textContent = fmtDate(a.nextHalvingEst) + '頃';
+    $('nextAth2020Pattern').textContent = `${fmtDate(nextAth2020)}頃 / +${a.halvingToPrevAthDays.toLocaleString('ja-JP')}日`;
+    $('nextAth2024Pattern').textContent = `${fmtDate(nextAth2024)}頃 / +${a.halvingToCurrentAthDays.toLocaleString('ja-JP')}日`;
+    $('nextAthAvgPattern').textContent = `${fmtDate(nextAthAvg)}頃 / +${avgDays.toLocaleString('ja-JP')}日`;
+    $('auxAth').textContent = fmtDate(a.currentPeak.t) + ' / ' + fmtUsd(a.currentPeak.close);
+    const saved = state.savedAt ? new Date(state.savedAt).toLocaleString('ja-JP') : '';
+    updateTopStatus(`最終更新<br>${saved || fmtDate(a.latest.t)}`);
+
+    const sameText = compareText(a);
+    $('judgement').innerHTML = `
+      <b>現在位置：ATH後${a.currentDays.toLocaleString('ja-JP')}日 / 下落率 ${fmtPct(a.currentDrawdown)}</b><br>
+      ${sameText || '比較文を作成できない。'}<br>
+      <span class="muted">これは売買判断ではなく、過去サイクルとの位置確認。</span>
+    `;
+  }
+
+  function getCurrentSegments() {
+    const a = state.analysis;
+    if (!a) return [];
+    if (state.mode === 'sameDays') return a.sameDaysSegments;
+    if (state.mode === 'athToAth') return a.athToAthSegments;
+    if (state.mode === 'bottomToAth') return a.bottomToAthSegments;
+    if (state.mode === 'full') return [a.fullSegment];
+    return a.sameDaysSegments;
+  }
+
+  function niceTicks(min, max, count) {
+    if (!Number.isFinite(min) || !Number.isFinite(max) || min === max) return [min || 0, max || 1];
+    const span = max - min;
+    const raw = span / Math.max(1, count - 1);
+    const pow = Math.pow(10, Math.floor(Math.log10(Math.abs(raw))));
+    const norm = raw / pow;
+    let step = pow;
+    if (norm > 5) step = 10 * pow;
+    else if (norm > 2) step = 5 * pow;
+    else if (norm > 1) step = 2 * pow;
+    const first = Math.floor(min / step) * step;
+    const last = Math.ceil(max / step) * step;
+    const ticks = [];
+    for (let v = first; v <= last + step * 0.5; v += step) ticks.push(v);
+    return ticks;
+  }
+
+  function drawChart() {
+    const canvas = $('chart');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(320, Math.round(rect.width * dpr));
+    canvas.height = Math.max(240, Math.round(rect.height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = rect.width;
+    const h = rect.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const segments = getCurrentSegments();
+    if (!segments.length || !segments.some(s => s.points && s.points.length)) {
+      ctx.fillStyle = '#a9bad0';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('データ未取得', 20, 30);
+      return;
+    }
+
+    const pad = { l: 68, r: 14, t: 14, b: 36 };
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
+    const all = segments.flatMap(s => s.points);
+    let xMin = Math.min(...all.map(p => p.x));
+    let xMax = Math.max(...all.map(p => p.x));
+    let yMin = Math.min(...all.map(p => p.y));
+    let yMax = Math.max(...all.map(p => p.y));
+    if (state.mode !== 'full') {
+      yMin = Math.min(yMin, 0);
+      yMax = Math.max(yMax, 0);
+    }
+    if (state.mode === 'full') {
+      yMin = Math.max(0, yMin * 0.92);
+      yMax = yMax * 1.08;
+    } else {
+      const span = Math.max(10, yMax - yMin);
+      yMin -= span * 0.08;
+      yMax += span * 0.08;
+    }
+    if (xMin === xMax) xMax = xMin + 1;
+    if (yMin === yMax) yMax = yMin + 1;
+
+    const xScale = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * plotW;
+    const yScale = (y) => pad.t + (1 - ((y - yMin) / (yMax - yMin))) * plotH;
+
+    ctx.strokeStyle = '#243e5d';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = '#a9bad0';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+
+    const yTicks = niceTicks(yMin, yMax, 6);
+    for (const tick of yTicks) {
+      const y = yScale(tick);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(w - pad.r, y);
+      ctx.stroke();
+      const label = state.mode === 'full' ? fmtUsd(tick) : fmtAxisPct(tick);
+      ctx.fillText(label, pad.l - 6, y);
+    }
+
+    const xTicks = niceTicks(xMin, xMax, 5);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (const tick of xTicks) {
+      const x = xScale(tick);
+      ctx.beginPath();
+      ctx.moveTo(x, pad.t);
+      ctx.lineTo(x, h - pad.b);
+      ctx.stroke();
+      let label;
+      if (state.mode === 'full') label = fmtDate(tick).slice(0, 7);
+      else label = Math.round(tick).toLocaleString('ja-JP') + '日';
+      ctx.fillText(label, x, h - pad.b + 8);
+    }
+
+    ctx.strokeStyle = '#3b5d83';
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(pad.l, pad.t, plotW, plotH);
+
+    if (state.mode !== 'full' && yMin < 0 && yMax > 0) {
+      const y0 = yScale(0);
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = '#8ea5bd';
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y0);
+      ctx.lineTo(w - pad.r, y0);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    for (const seg of segments) {
+      const pts = seg.points;
+      if (!pts.length) continue;
+      ctx.strokeStyle = seg.color;
+      ctx.lineWidth = seg.label.includes('現在') ? 3 : 2;
+      ctx.beginPath();
+      pts.forEach((p, i) => {
+        const x = xScale(p.x);
+        const y = yScale(p.y);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      const last = pts[pts.length - 1];
+      ctx.fillStyle = seg.color;
+      ctx.beginPath();
+      ctx.arc(xScale(last.x), yScale(last.y), seg.label.includes('現在') ? 4 : 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function renderLegend() {
+    const segments = getCurrentSegments();
+    $('legend').innerHTML = segments.map(s => `<span class="leg"><span class="dot" style="background:${s.color}"></span>${s.label}</span>`).join('');
+  }
+
+  function renderTable() {
+    const a = state.analysis;
+    if (!a) return;
+    const head = $('tableHead');
+    const body = $('tableBody');
+
+    if (state.mode === 'sameDays') {
+      head.innerHTML = '<tr><th>比較対象</th><th>ATH日</th><th>ATH価格</th><th>比較日数</th><th>同日数時点</th><th>期間内最大下落</th><th>最大下落日</th></tr>';
+      body.innerHTML = a.sameDaysSegments.map(seg => {
+        const st = statsForSegment(seg);
+        return `<tr><td>${seg.label}</td><td>${fmtDate(seg.start.t)}</td><td>${fmtUsd(seg.start.close)}</td><td>${st.days.toLocaleString('ja-JP')}日</td><td>${fmtPct(st.last.y)}</td><td>${fmtPct(st.min.y)}</td><td>${fmtDate(st.min.t)} / ${st.min.x.toLocaleString('ja-JP')}日後</td></tr>`;
+      }).join('');
+    } else if (state.mode === 'athToAth') {
+      head.innerHTML = '<tr><th>比較対象</th><th>開始ATH</th><th>終点</th><th>終点まで</th><th>終点騰落率</th><th>倍率</th><th>最大下落</th><th>底打ちまで</th><th>ATH回復まで</th></tr>';
+      body.innerHTML = a.athToAthSegments.map(seg => {
+        const st = statsForSegment(seg);
+        const recovery = st.recovery ? `${st.recovery.x.toLocaleString('ja-JP')}日 / ${fmtDate(st.recovery.t)}` : '--';
+        return `<tr><td>${seg.label}</td><td>${fmtDate(seg.start.t)} / ${fmtUsd(seg.start.close)}</td><td>${fmtDate(seg.end.t)} / ${fmtUsd(seg.end.close)}</td><td>${st.days.toLocaleString('ja-JP')}日</td><td>${fmtPct(st.last.y)}</td><td>${fmtMultipleFromPct(st.last.y)}</td><td>${fmtPct(st.min.y)}</td><td>${st.min.x.toLocaleString('ja-JP')}日 / ${fmtDate(st.min.t)}</td><td>${recovery}</td></tr>`;
+      }).join('');
+    } else if (state.mode === 'bottomToAth') {
+      head.innerHTML = '<tr><th>比較対象</th><th>開始底</th><th>終点</th><th>終点まで</th><th>終点騰落率</th><th>倍率</th><th>最大上昇率</th><th>最大倍率</th><th>備考</th></tr>';
+      body.innerHTML = a.bottomToAthSegments.map(seg => {
+        const st = statsForSegment(seg);
+        const maxP = seg.points.reduce((max, p) => p.y > max.y ? p : max, seg.points[0]);
+        const note = seg.label.includes('暫定') ? '底未確定。最新データ内のATH後安値を暫定底として表示。' : '弱気相場の底から次の大きな天井まで。';
+        return `<tr><td>${seg.label}</td><td>${fmtDate(seg.start.t)} / ${fmtUsd(seg.start.close)}</td><td>${fmtDate(seg.end.t)} / ${fmtUsd(seg.end.close)}</td><td>${st.days.toLocaleString('ja-JP')}日</td><td>${fmtPct(st.last.y)}</td><td>${fmtMultipleFromPct(st.last.y)}</td><td>${fmtPct(maxP.y)} / ${fmtDate(maxP.t)}</td><td>${fmtMultipleFromPct(maxP.y)}</td><td>${note}</td></tr>`;
+      }).join('');
+    } else {
+      const candles = state.candles;
+      const first = candles[0];
+      const last = candles[candles.length - 1];
+      const max = candles.reduce((m, c) => c.close > m.close ? c : m, candles[0]);
+      const min = candles.reduce((m, c) => c.close < m.close ? c : m, candles[0]);
+      head.innerHTML = '<tr><th>項目</th><th>日付</th><th>価格</th><th>備考</th></tr>';
+      body.innerHTML = `
+        <tr><td>開始</td><td>${fmtDate(first.t)}</td><td>${fmtUsd(first.close)}</td><td>Binance日足開始付近</td></tr>
+        <tr><td>最新</td><td>${fmtDate(last.t)}</td><td>${fmtUsd(last.close)}</td><td>最新取得値</td></tr>
+        <tr><td>期間内最高</td><td>${fmtDate(max.t)}</td><td>${fmtUsd(max.close)}</td><td>日足終値ベース</td></tr>
+        <tr><td>期間内最低</td><td>${fmtDate(min.t)}</td><td>${fmtUsd(min.close)}</td><td>日足終値ベース</td></tr>
+      `;
+    }
+  }
+
+  function renderNote() {
+    if (state.mode === 'sameDays') {
+      $('chartNote').textContent = '同日数比較：現在のATH後日数に合わせ、過去サイクルも同じ日数で切る。Y軸はATHからの騰落率。';
+    } else if (state.mode === 'athToAth') {
+      $('chartNote').textContent = 'ATH→次ATH：開始ATHを0%として、次の大きな天井または現在までを実日数で表示。上昇相場の底値比ではなく、前回高値からの天井更新率を見る。';
+    } else if (state.mode === 'bottomToAth') {
+      $('chartNote').textContent = '底→天井：弱気相場の底を0%として、次の大きな天井までの底値比上昇率を表示。現在ATH後の底は未確定の暫定底。';
+    } else {
+      $('chartNote').textContent = '全期間：Binance BTCUSDTの日足終値をそのまま表示。2013年サイクルは含まない。';
+    }
+  }
+
+  function renderTabs() {
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === state.mode);
+    });
+  }
+
+  function renderAll() {
+    if (!state.candles.length) {
+      drawChart();
+      return;
+    }
+    state.analysis = analyze(state.candles);
+    renderSummary();
+    renderTabs();
+    renderLegend();
+    renderNote();
+    renderTable();
+    drawChart();
+  }
+
+  async function handleFetch() {
+    try {
+      setMessage('', 'ok');
+      $('fetchBtn').disabled = true;
+      $('fetchBtn').textContent = '取得中...';
+      const data = await fetchAllData();
+      state.candles = data.candles;
+      state.source = data.source;
+      state.savedAt = new Date().toISOString();
+      saveData();
+      renderAll();
+      setMessage(`取得完了：Binance BTCUSDT / ${fmtDate(state.candles[0].t)}〜${fmtDate(state.candles[state.candles.length - 1].t)}\n接続先：${data.source}`, 'ok');
+    } catch (err) {
+      setMessage('価格データ取得失敗。\n' + err.message + '\n保存データがある場合は「保存データ表示」を押す。', 'err');
+      updateTopStatus('取得失敗');
+    } finally {
+      $('fetchBtn').disabled = false;
+      $('fetchBtn').textContent = '最新データ取得';
+    }
+  }
+
+  function handleLoad() {
+    try {
+      loadSavedData();
+      renderAll();
+      setMessage('保存データを表示した。', 'ok');
+    } catch (err) {
+      setMessage(err.message, 'err');
+    }
+  }
+
+  function init() {
+    $('fetchBtn').addEventListener('click', handleFetch);
+    $('loadBtn').addEventListener('click', handleLoad);
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.mode = btn.dataset.mode;
+        localStorage.setItem(MODE_KEY, state.mode);
+        renderAll();
+      });
+    });
+    window.addEventListener('resize', () => drawChart());
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+    renderTabs();
+    try {
+      loadSavedData();
+      renderAll();
+      setMessage('保存データを表示中。最新化する場合は「最新データ取得」を押す。', 'ok');
+    } catch (_) {
+      drawChart();
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
