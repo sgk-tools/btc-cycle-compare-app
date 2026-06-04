@@ -3,232 +3,174 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#07111f">
+  <meta name="theme-color" content="#05070b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="BTCサイクル比較">
+  <meta name="apple-mobile-web-app-title" content="BTC現在地">
   <link rel="manifest" href="manifest.webmanifest">
-  <title>BTCサイクル比較</title>
+  <title>BTC現在地</title>
   <style>
     :root{
-      --bg:#07111f;
-      --panel:#0f1d33;
-      --panel2:#13233c;
-      --line:#294463;
-      --text:#e9f2ff;
-      --muted:#a9bad0;
-      --blue:#37b8ed;
-      --cyan:#2bd4d2;
-      --red:#ff6384;
-      --yellow:#ffcc33;
-      --green:#36d399;
-      --orange:#ff9f40;
-      --danger:#3d0f1f;
-      --ok:#082d3d;
-      --white:#fff;
-      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --bg:#05070b;
+      --card:#10141c;
+      --card2:#151b25;
+      --line:#252d3a;
+      --text:#f5f7fb;
+      --muted:#8d99aa;
+      --muted2:#5f6b7a;
+      --accent:#ffffff;
+      --blue:#69b7ff;
+      --green:#4ade80;
+      --yellow:#facc15;
+      --red:#fb7185;
+      --shadow:0 18px 45px rgba(0,0,0,.36);
     }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;font-size:15px;}
-    body{min-height:100vh;padding-bottom:calc(20px + env(safe-area-inset-bottom));}
-    .wrap{width:min(760px,100%);margin:0 auto;padding:18px 14px 28px;}
-    header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
-    h1{font-size:22px;line-height:1.15;margin:0 0 5px;font-weight:800;letter-spacing:.02em;}
-    .sub{font-size:12px;color:var(--muted);line-height:1.5;}
-    .statusTop{font-size:11px;color:var(--muted);text-align:right;line-height:1.4;white-space:nowrap;padding-top:4px;}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-    .card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:13px;box-shadow:var(--shadow);min-height:92px;}
-    .label{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.35;}
-    .value{font-size:24px;font-weight:850;line-height:1.2;letter-spacing:.01em;}
-    .value.red{color:var(--red)}
-    .value.green{color:var(--green)}
-    .small{font-size:12px;color:var(--muted);line-height:1.45;margin-top:6px;}
-    .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
-    button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;font-size:15px;font-weight:800;min-height:52px;padding:12px 10px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
-    button.primary{background:linear-gradient(180deg,#48c7f5,#2aaee5);color:#00101a;border-color:#57d6ff;}
+    body{min-height:100vh;padding-bottom:calc(22px + env(safe-area-inset-bottom));}
+    .wrap{width:min(780px,100%);margin:0 auto;padding:18px 14px 28px;}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 18px;}
+    h1{font-size:20px;line-height:1.1;margin:0;font-weight:750;letter-spacing:.01em;}
+    .status{font-size:11px;color:var(--muted);text-align:right;line-height:1.35;white-space:nowrap;}
+    .hero{background:linear-gradient(180deg,#171d27,#0d1118);border:1px solid var(--line);border-radius:24px;padding:20px 18px 18px;box-shadow:var(--shadow);margin-bottom:12px;}
+    .heroTop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;}
+    .eyebrow{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;}
+    .price{font-size:44px;font-weight:800;letter-spacing:-.04em;line-height:1;}
+    .date{font-size:12px;color:var(--muted);margin-top:7px;}
+    .decision{min-width:128px;text-align:right;}
+    .pill{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:800;color:var(--text);background:#0b0f15;}
+    .pill.watch{border-color:#4b5563;color:#d4d9e2;}
+    .pill.ready{border-color:#276749;color:#bbf7d0;background:#082112;}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;}
+    .metric{background:#090d13;border:1px solid var(--line);border-radius:16px;padding:12px 10px;min-height:78px;}
+    .metricLabel{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;line-height:1.25;}
+    .metricValue{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}
+    .metricValue.red{color:var(--red)}
+    .metricValue.green{color:var(--green)}
+    .oneLine{margin-top:14px;color:#d8dee8;font-size:13px;line-height:1.5;}
+    .bar{display:flex;gap:8px;align-items:center;margin:12px 0;}
+    button{appearance:none;border:1px solid var(--line);background:#111722;color:var(--text);border-radius:999px;min-height:42px;padding:9px 14px;font-size:13px;font-weight:800;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
     button:active{transform:translateY(1px)}
-    .msg{display:none;border-radius:12px;padding:12px;margin:10px 0;font-size:12px;line-height:1.55;white-space:pre-wrap;border:1px solid transparent;}
+    .update{margin-left:auto;background:#f5f7fb;color:#05070b;border-color:#f5f7fb;}
+    .msg{display:none;border:1px solid var(--line);border-radius:14px;background:#0e131b;color:var(--muted);font-size:12px;line-height:1.5;padding:10px 12px;margin:8px 0 12px;white-space:pre-wrap;}
     .msg.show{display:block}
-    .msg.ok{background:var(--ok);border-color:#1386a7;color:#dff8ff}
-    .msg.err{background:var(--danger);border-color:#a33a56;color:#ffe8ee}
-    .section{margin-top:18px;}
-    .section h2{font-size:16px;margin:0 0 10px;font-weight:850;}
-    .judgement{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:13px;box-shadow:var(--shadow);font-size:13px;line-height:1.65;}
-    .judgement b{color:var(--white)}
-    .tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-bottom:10px;}
-    .miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-    .miniCard{background:#0b1729;border:1px solid var(--line);border-radius:12px;padding:10px 11px;}
-    .miniLabel{font-size:11px;color:var(--muted);margin-bottom:4px;}
-    .miniValue{font-size:14px;font-weight:800;color:var(--text);line-height:1.35;}
-    .tab{min-height:44px;padding:9px 6px;font-size:12px;font-weight:800;border-radius:11px;}
-    .tab.active{background:#1f78a8;border-color:#54cfff;color:#fff;}
-    .chartBox{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:10px;box-shadow:var(--shadow);}
-    .chartInner{border:1px solid #243e5d;border-radius:10px;background:#07111f;padding:7px;overflow:hidden;}
-    canvas{display:block;width:100%;height:310px;}
-    .legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 2px 4px;font-size:12px;color:var(--muted);}
-    .leg{display:inline-flex;align-items:center;gap:5px;border:1px solid #274461;border-radius:999px;padding:5px 8px;background:#0b1729;}
-    .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
-    .note{font-size:12px;color:var(--muted);line-height:1.55;margin:8px 2px 0;}
-    .tableWrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#081526;box-shadow:var(--shadow);}
-    table{width:100%;border-collapse:collapse;min-width:720px;font-size:12px;}
-    th,td{padding:10px 9px;border-bottom:1px solid #1f3653;text-align:left;white-space:nowrap;}
-    th{background:#0d1a2d;color:#cfe2f7;font-weight:800;position:sticky;top:0;}
-    td{color:#e7f1ff;}
-    .muted{color:var(--muted)}
-    details{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:11px 13px;}
-    summary{font-weight:800;cursor:pointer;}
-    .manual{font-size:12px;color:var(--muted);line-height:1.65;margin-top:10px;}
-    .footer{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.55;}
+    .chartCard{background:linear-gradient(180deg,#111722,#0a0e14);border:1px solid var(--line);border-radius:24px;padding:12px;box-shadow:var(--shadow);}
+    .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px;}
+    .tab{border-radius:14px;min-height:40px;padding:8px 5px;font-size:12px;background:#090d13;color:var(--muted);}
+    .tab.active{background:#f5f7fb;color:#05070b;border-color:#f5f7fb;}
+    .range{display:none;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 10px;}
+    .range.show{display:grid;}
+    .range button{border-radius:13px;min-height:36px;padding:7px 5px;font-size:12px;background:#090d13;color:var(--muted);}
+    .range button.active{background:#263142;color:#fff;border-color:#39465a;}
+    .canvasWrap{height:354px;border:1px solid #202838;border-radius:18px;background:#06090e;padding:8px;overflow:hidden;}
+    canvas{display:block;width:100%;height:100%;}
+    .legend{display:flex;flex-wrap:wrap;gap:7px;margin:11px 2px 2px;}
+    .leg{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;border:1px solid var(--line);border-radius:999px;background:#090d13;padding:5px 8px;}
+    .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+    .note{font-size:11px;color:var(--muted2);line-height:1.5;margin:10px 3px 2px;}
+    details{margin-top:12px;border:1px solid var(--line);border-radius:18px;background:#0a0e14;padding:12px 14px;color:var(--muted);}
+    summary{font-size:12px;font-weight:800;color:#cbd5e1;cursor:pointer;}
+    .detail{font-size:12px;line-height:1.7;margin-top:10px;}
+    .footer{font-size:11px;color:var(--muted2);line-height:1.45;margin-top:13px;text-align:center;}
     @media (max-width:560px){
       .wrap{padding:14px 10px 24px;}
-      h1{font-size:20px;}
-      .grid{grid-template-columns:1fr 1fr;gap:8px;}
-      .card{padding:11px;min-height:88px;}
-      .label{font-size:11px;}
-      .value{font-size:22px;}
-      .actions{grid-template-columns:1fr 1fr;gap:8px;}
-      button{font-size:14px;min-height:50px;}
-      .tabs{grid-template-columns:1fr 1fr;gap:6px;}
-      .tab{font-size:11px;min-height:42px;}
-      .miniGrid{grid-template-columns:1fr 1fr;}
-      canvas{height:285px;}
+      h1{font-size:19px;}
+      .hero{border-radius:22px;padding:18px 14px 15px;}
+      .price{font-size:39px;}
+      .heroTop{gap:8px;}
+      .decision{min-width:108px;}
+      .pill{font-size:11px;padding:7px 9px;}
+      .metrics{grid-template-columns:repeat(3,1fr);gap:6px;}
+      .metric{padding:10px 8px;min-height:72px;border-radius:14px;}
+      .metricLabel{font-size:10px;}
+      .metricValue{font-size:18px;}
+      .tabs{grid-template-columns:repeat(5,1fr);gap:5px;}
+      .tab{font-size:11px;min-height:38px;padding:7px 3px;}
+      .canvasWrap{height:326px;}
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div>
-        <h1>BTCサイクル比較</h1>
-        <div class="sub">ATH後下落率・同日数比較・底値倍率比較</div>
-      </div>
-      <div class="statusTop" id="topStatus">未取得</div>
+      <h1>BTC現在地</h1>
+      <div class="status" id="topStatus">未取得</div>
     </header>
 
-    <div class="grid">
-      <div class="card">
-        <div class="label">BTC価格</div>
-        <div class="value" id="latestPrice">--</div>
-        <div class="small" id="latestDate">--</div>
+    <section class="hero">
+      <div class="heroTop">
+        <div>
+          <div class="eyebrow">BTC / USD</div>
+          <div class="price" id="latestPrice">--</div>
+          <div class="date" id="latestDate">--</div>
+        </div>
+        <div class="decision"><span class="pill watch" id="conditionPill">監視</span></div>
       </div>
-      <div class="card">
-        <div class="label">現在サイクルATHからの下落率</div>
-        <div class="value red" id="currentDd">--</div>
-        <div class="small" id="currentAth">--</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metricLabel">ATH後</div>
+          <div class="metricValue" id="athDays">--</div>
+        </div>
+        <div class="metric">
+          <div class="metricLabel">ATH比</div>
+          <div class="metricValue red" id="currentDd">--</div>
+        </div>
+        <div class="metric">
+          <div class="metricLabel">60,000条件</div>
+          <div class="metricValue" id="sixtyCondition">--</div>
+        </div>
       </div>
-      <div class="card">
-        <div class="label">現在ATH後の日数</div>
-        <div class="value" id="athDays">--</div>
-        <div class="small" id="athBasis">ATH基準：--</div>
-      </div>
-      <div class="card">
-        <div class="label">前回ATH後 同日数下落率</div>
-        <div class="value red" id="prevSameDayDd">--</div>
-        <div class="small" id="prevSameDayBasis">同日数比較：--</div>
-      </div>
-    </div>
+      <div class="oneLine" id="positionLine">データ未取得。更新する。</div>
+    </section>
 
-    <div class="actions">
-      <button class="primary" id="fetchBtn">最新データ取得</button>
-      <button id="loadBtn">保存データ表示</button>
+    <div class="bar">
+      <button class="update" id="fetchBtn">更新</button>
     </div>
-
     <div class="msg" id="message"></div>
 
-    <div class="section">
-      <h2>補助情報</h2>
-      <div class="miniGrid">
-        <div class="miniCard">
-          <div class="miniLabel">次回半減期（推定）</div>
-          <div class="miniValue" id="nextHalvingDate">--</div>
-        </div>
-        <div class="miniCard">
-          <div class="miniLabel">購入検討目安（過去底日数型）</div>
-          <div class="miniValue" id="buyWindow">--</div>
-        </div>
-        <div class="miniCard">
-          <div class="miniLabel">購入条件</div>
-          <div class="miniValue" id="buyCondition">60,000ドル以下中心</div>
-        </div>
-        <div class="miniCard">
-          <div class="miniLabel">次回ATH候補（2020型）</div>
-          <div class="miniValue" id="nextAth2020Pattern">--</div>
-        </div>
-        <div class="miniCard">
-          <div class="miniLabel">次回ATH候補（2024型）</div>
-          <div class="miniValue" id="nextAth2024Pattern">--</div>
-        </div>
-        <div class="miniCard">
-          <div class="miniLabel">次回ATH候補（平均）</div>
-          <div class="miniValue" id="nextAthAvgPattern">--</div>
-        </div>
+    <section class="chartCard">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-mode="daily">日足</button>
+        <button class="tab" data-mode="weekly">週足</button>
+        <button class="tab" data-mode="monthly">月足</button>
+        <button class="tab" data-mode="yearly">年足</button>
+        <button class="tab" data-mode="cycle">ATH</button>
       </div>
-    </div>
-
-    <div class="section">
-      <h2>現在位置</h2>
-      <div class="judgement" id="judgement">データ未取得。最新データ取得を押す。</div>
-    </div>
-
-    <div class="section">
-      <h2>チャート比較</h2>
-      <div class="tabs">
-        <button class="tab active" data-mode="sameDays">同日数比較</button>
-        <button class="tab" data-mode="athToAth">ATH→次ATH</button>
-        <button class="tab" data-mode="bottomToAth">底→天井</button>
-        <button class="tab" data-mode="full">全期間</button>
+      <div class="range" id="rangeTabs">
+        <button data-range="500">500日</button>
+        <button data-range="1000">1000日</button>
+        <button data-range="1500" class="active">1500日</button>
+        <button data-range="all">全期間</button>
       </div>
-      <div class="chartBox">
-        <div class="chartInner"><canvas id="chart"></canvas></div>
-        <div class="legend" id="legend"></div>
-        <div class="note" id="chartNote">同日数比較：現在のATH後日数に合わせ、過去サイクルも同じ日数で切る。</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>サイクル別比較</h2>
-      <div class="tableWrap">
-        <table>
-          <thead id="tableHead"></thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-    </div>
+      <div class="canvasWrap"><canvas id="chart"></canvas></div>
+      <div class="legend" id="legend"></div>
+      <div class="note" id="chartNote">価格チャートは日足終値ベース。長期確認のため対数表示。</div>
+    </section>
 
     <details>
-      <summary>使い方・注意</summary>
-      <div class="manual">
-        ・標準は「同日数比較」。現在がATH後236日なら、過去サイクルもATH後236日までで比較する。<br>
-        ・「ATH→次ATH」は、天井から次の大きな天井までの実日数を比較する。線の長さの違いも情報として見る。<br>
-        ・「底→天井」は、弱気相場の底を1倍として次の大きな天井までの底値比倍率を見る。チャートは対数表示。現在ATH後の底は未確定なので暫定表示。<br>
-        ・補助情報の次回半減期は、2024年半減期から210,000ブロック×10分で計算した概算。実際の日付はブロック生成速度で前後する。<br>
-        ・購入検討目安は、過去2サイクルの「ATHから底打ちまでの日数」を現在ATHへ当てはめ、前後約3か月の余裕を持たせた機械計算。売買推奨ではない。<br>
-        ・購入条件は、きみの既定方針である「60,000ドル以下を中心に検討」を表示している。<br>
-        ・次回ATH候補は、2020半減期→前回ATH、2024半減期→現在ATHの日数を、次回半減期推定日に加算した機械計算。予測ではない。<br>
-        ・数値はBinance BTCUSDTの日足終値ベース。取引所や日足基準により、一般的なATH表記と差が出る。<br>
-        ・2013年サイクルはBinance日足データ開始前のため未搭載。<br>
-        ・このアプリは位置確認用。買い・売り判断は、価格条件、マクロ環境、資金量、税金、心理的負担を別に確認する。
+      <summary>データと前提</summary>
+      <div class="detail" id="dataDetail">
+        ・価格はBinance BTCUSDTの日足終値。<br>
+        ・週足、月足、年足は日足終値から各期間の最終終値を抽出。ローソク足ではない。<br>
+        ・ATH比較は、開始ATHを0%として次ATHまたは現在までを表示。<br>
+        ・これは位置確認用。売買判断ではない。
       </div>
     </details>
 
-    <div class="footer">
-      v1.8 / GitHub Pages・iPhone Safari対応 / APIキー不要 / localStorage保存<br>
-      取得元：Binance Spot API BTCUSDT daily klines
-    </div>
+    <div class="footer">v2.0 minimal / APIキー不要 / GitHub Pages対応</div>
   </div>
 
 <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '1.8';
-  const STORAGE_KEY = 'btc_cycle_anomaly_v1_8_data';
-  const MODE_KEY = 'btc_cycle_anomaly_v1_8_mode';
+  const APP_VERSION = '2.0-minimal';
+  const STORAGE_KEY = 'btc_position_v2_0_data';
+  const MODE_KEY = 'btc_position_v2_0_mode';
+  const RANGE_KEY = 'btc_position_v2_0_cycle_range';
   const DAY_MS = 24 * 60 * 60 * 1000;
   const START_MS = Date.UTC(2017, 7, 17);
-  const HALVING_2020_MS = Date.UTC(2020, 4, 11);
-  const HALVING_2024_MS = Date.UTC(2024, 3, 20);
-  const NEXT_HALVING_EST_MS = HALVING_2024_MS + 210000 * 10 * 60 * 1000;
+  const SIXTY_K = 60000;
   const ENDPOINTS = [
     'https://api.binance.com',
     'https://api-gcp.binance.com',
@@ -238,10 +180,10 @@
     'https://api4.binance.com'
   ];
   const COLORS = {
-    cycle2017: '#ffcc33',
-    prevCycle: '#36d399',
-    current: '#ff6384',
-    full: '#37b8ed'
+    cycle2017: '#facc15',
+    prevCycle: '#4ade80',
+    current: '#fb7185',
+    price: '#69b7ff'
   };
 
   const $ = (id) => document.getElementById(id);
@@ -249,7 +191,8 @@
     candles: [],
     source: '',
     savedAt: '',
-    mode: localStorage.getItem(MODE_KEY) || 'sameDays',
+    mode: localStorage.getItem(MODE_KEY) || 'daily',
+    range: localStorage.getItem(RANGE_KEY) || '1500',
     analysis: null
   };
 
@@ -266,52 +209,15 @@
 
   function fmtAxisPct(v) {
     if (!Number.isFinite(v)) return '--';
-    if (Math.abs(v) < 0.05) return '0.0%';
-    const sign = v > 0 ? '＋' : '−';
-    return sign + Math.abs(v).toFixed(1) + '%';
-  }
-
-  function fmtMultipleFromPct(v) {
-    if (!Number.isFinite(v)) return '--';
-    return ((100 + v) / 100).toFixed(2) + '倍';
-  }
-
-  function pctToMultiple(v) {
-    if (!Number.isFinite(v)) return NaN;
-    return Math.max(0.001, (100 + v) / 100);
-  }
-
-  function fmtAxisMultiple(v) {
-    if (!Number.isFinite(v)) return '--';
-    if (v < 1) return v.toFixed(1) + '倍';
-    if (v < 10) return v.toFixed(1).replace(/\.0$/, '') + '倍';
-    return Math.round(v).toLocaleString('ja-JP') + '倍';
-  }
-
-  function niceMultipleTicks(min, max) {
-    const candidates = [0.5, 0.7, 1, 1.5, 2, 3, 5, 7, 10, 15, 20, 30, 50, 70, 100];
-    let ticks = candidates.filter(v => v >= min && v <= max);
-    if (!ticks.some(v => Math.abs(v - 1) < 0.0001) && min < 1 && max > 1) ticks.push(1);
-    ticks = Array.from(new Set(ticks)).sort((a, b) => a - b);
-    if (ticks.length < 3) return niceTicks(min, max, 5);
-    return ticks;
+    if (Math.abs(v) < 0.05) return '0%';
+    const sign = v > 0 ? '+' : '−';
+    return sign + Math.abs(v).toFixed(0) + '%';
   }
 
   function fmtDate(ms) {
     if (!Number.isFinite(ms)) return '--';
     const d = new Date(ms);
-    const y = d.getUTCFullYear();
-    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(d.getUTCDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  function fmtYearMonth(ms) {
-    if (!Number.isFinite(ms)) return '--';
-    const d = new Date(ms);
-    const y = d.getUTCFullYear();
-    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-    return `${y}年${m}月`;
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
   }
 
   function parseDate(s) {
@@ -323,18 +229,18 @@
     return Math.round((b - a) / DAY_MS);
   }
 
-  function setMessage(text, type) {
+  function setMessage(text) {
     const el = $('message');
     if (!text) {
       el.className = 'msg';
       el.textContent = '';
       return;
     }
-    el.className = 'msg show ' + (type || 'ok');
+    el.className = 'msg show';
     el.textContent = text;
   }
 
-  function updateTopStatus(text) {
+  function setTopStatus(text) {
     $('topStatus').innerHTML = text || '未取得';
   }
 
@@ -362,7 +268,7 @@
       if (!Number.isFinite(next) || next <= start) break;
       start = next;
       if (Date.now() - start < DAY_MS) break;
-      await new Promise(resolve => setTimeout(resolve, 120));
+      await new Promise(resolve => setTimeout(resolve, 80));
     }
     const unique = new Map();
     for (const c of out) unique.set(c.t, c);
@@ -373,7 +279,7 @@
     const errors = [];
     for (const base of ENDPOINTS) {
       try {
-        updateTopStatus('取得中<br>' + base.replace('https://', ''));
+        setTopStatus('取得中<br>' + base.replace('https://', ''));
         const candles = await fetchKlinesFromBase(base);
         if (candles.length < 1000) throw new Error('データ不足 ' + candles.length + '本');
         return { candles, source: base };
@@ -385,26 +291,34 @@
   }
 
   function saveData() {
-    const payload = {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
       version: APP_VERSION,
       candles: state.candles,
       source: state.source,
       savedAt: new Date().toISOString()
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }));
   }
 
   function loadSavedData() {
-    const raw = localStorage.getItem(STORAGE_KEY)
-      || localStorage.getItem('btc_cycle_anomaly_v1_7_data')
-      || localStorage.getItem('btc_cycle_anomaly_v1_6_data')
-      || localStorage.getItem('btc_cycle_anomaly_v1_5_data')
-      || localStorage.getItem('btc_cycle_anomaly_v1_4_data')
-      || localStorage.getItem('btc_cycle_anomaly_v1_3_data')
-      || localStorage.getItem('btc_cycle_anomaly_v1_2_data');
-    if (!raw) throw new Error('保存データがない');
+    const keys = [
+      STORAGE_KEY,
+      'btc_cycle_anomaly_v1_9_data',
+      'btc_cycle_anomaly_v1_8_data',
+      'btc_cycle_anomaly_v1_7_data',
+      'btc_cycle_anomaly_v1_6_data',
+      'btc_cycle_anomaly_v1_5_data',
+      'btc_cycle_anomaly_v1_4_data',
+      'btc_cycle_anomaly_v1_3_data',
+      'btc_cycle_anomaly_v1_2_data'
+    ];
+    let raw = '';
+    for (const key of keys) {
+      raw = localStorage.getItem(key);
+      if (raw) break;
+    }
+    if (!raw) throw new Error('保存データなし');
     const data = JSON.parse(raw);
-    if (!data || !Array.isArray(data.candles) || data.candles.length === 0) throw new Error('保存データが不正');
+    if (!data || !Array.isArray(data.candles) || !data.candles.length) throw new Error('保存データ不正');
     state.candles = data.candles.map(c => ({ t: Number(c.t), close: Number(c.close) })).filter(c => Number.isFinite(c.t) && Number.isFinite(c.close));
     state.source = data.source || '保存データ';
     state.savedAt = data.savedAt || '';
@@ -415,32 +329,12 @@
   }
 
   function findMaxInRange(candles, startStr, endStr) {
-    const start = parseDate(startStr);
-    const end = parseDate(endStr);
-    const range = sliceRange(candles, start, end);
+    const range = sliceRange(candles, parseDate(startStr), parseDate(endStr));
     if (!range.length) return null;
     return range.reduce((max, c) => c.close > max.close ? c : max, range[0]);
   }
 
-  function findMinBetween(candles, startMs, endMs) {
-    const range = sliceRange(candles, startMs, endMs);
-    if (!range.length) return null;
-    return range.reduce((min, c) => c.close < min.close ? c : min, range[0]);
-  }
-
-  function buildSegment(candles, startCandle, maxDays, label, color, mode) {
-    if (!startCandle) return null;
-    const endMs = startCandle.t + maxDays * DAY_MS;
-    const range = sliceRange(candles, startCandle.t, endMs);
-    const points = range.map(c => {
-      const x = daysBetween(startCandle.t, c.t);
-      const y = (c.close / startCandle.close - 1) * 100;
-      return { x, y, t: c.t, price: c.close };
-    });
-    return { label, color, points, start: startCandle, mode };
-  }
-
-  function buildSegmentToEnd(candles, startCandle, endCandle, label, color, mode) {
+  function buildSegmentToEnd(candles, startCandle, endCandle, label, color) {
     if (!startCandle || !endCandle) return null;
     const range = sliceRange(candles, startCandle.t, endCandle.t);
     const points = range.map(c => ({
@@ -449,153 +343,73 @@
       t: c.t,
       price: c.close
     }));
-    return { label, color, points, start: startCandle, end: endCandle, mode };
-  }
-
-  function statsForSegment(segment) {
-    if (!segment || !segment.points.length) return null;
-    const start = segment.start;
-    let min = segment.points[0];
-    for (const p of segment.points) if (p.y < min.y) min = p;
-    let recovery = null;
-    for (const p of segment.points) {
-      if (p.x > 0 && p.price >= start.close) {
-        recovery = p;
-        break;
-      }
-    }
-    const last = segment.points[segment.points.length - 1];
-    return { min, recovery, last, days: last.x };
+    return { label, color, points, start: startCandle, end: endCandle };
   }
 
   function analyze(candles) {
-    if (!candles.length) return null;
     const latest = candles[candles.length - 1];
     const peak2017 = findMaxInRange(candles, '2017-11-01', '2018-02-28');
     const peak2021 = findMaxInRange(candles, '2021-10-01', '2022-01-31');
     const currentPeak = findMaxInRange(candles, '2024-01-01', fmtDate(latest.t));
-    if (!peak2017 || !peak2021 || !currentPeak) throw new Error('サイクル基準日の算出に失敗');
-
-    const currentDays = Math.max(0, daysBetween(currentPeak.t, latest.t));
-    const sameDaysSegments = [
-      buildSegment(candles, peak2017, currentDays, '2017天井後', COLORS.cycle2017, 'sameDays'),
-      buildSegment(candles, peak2021, currentDays, '前回天井後', COLORS.prevCycle, 'sameDays'),
-      buildSegment(candles, currentPeak, currentDays, '現在天井後', COLORS.current, 'sameDays')
-    ].filter(Boolean);
-
+    if (!peak2017 || !peak2021 || !currentPeak) throw new Error('ATH基準を算出できない');
     const athToAthSegments = [
-      buildSegmentToEnd(candles, peak2017, peak2021, '2017天井→前回天井', COLORS.cycle2017, 'athToAth'),
-      buildSegmentToEnd(candles, peak2021, currentPeak, '前回天井→現在天井', COLORS.prevCycle, 'athToAth'),
-      buildSegmentToEnd(candles, currentPeak, latest, '現在天井→現在', COLORS.current, 'athToAth')
+      buildSegmentToEnd(candles, peak2017, peak2021, '2017 ATH→前回ATH', COLORS.cycle2017),
+      buildSegmentToEnd(candles, peak2021, currentPeak, '前回ATH→現在ATH', COLORS.prevCycle),
+      buildSegmentToEnd(candles, currentPeak, latest, '現在ATH→現在', COLORS.current)
     ].filter(Boolean);
-
-    const bottom2018 = findMinBetween(candles, peak2017.t, peak2021.t);
-    const bottom2022 = findMinBetween(candles, peak2021.t, currentPeak.t);
-    const currentPostAthLow = findMinBetween(candles, currentPeak.t, latest.t);
-    const bottomToAthSegments = [
-      buildSegmentToEnd(candles, bottom2018, peak2021, '2018底→前回天井', COLORS.cycle2017, 'bottomToAth'),
-      buildSegmentToEnd(candles, bottom2022, currentPeak, '2022底→現在天井', COLORS.prevCycle, 'bottomToAth'),
-      buildSegmentToEnd(candles, currentPostAthLow, latest, '現在ATH後暫定底→現在', COLORS.current, 'bottomToAth')
-    ].filter(seg => seg && seg.points && seg.points.length);
-
-    const fullSegment = {
-      label: 'BTCUSDT 全期間',
-      color: COLORS.full,
-      points: candles.map(c => ({ x: c.t, y: c.close, t: c.t, price: c.close })),
-      mode: 'full'
-    };
-
+    const currentDrawdown = (latest.close / currentPeak.close - 1) * 100;
     return {
       latest,
       peak2017,
       peak2021,
       currentPeak,
-      currentDays,
-      currentDrawdown: (latest.close / currentPeak.close - 1) * 100,
-      halvingDays: daysBetween(HALVING_2024_MS, latest.t),
-      halvingToPrevAthDays: daysBetween(HALVING_2020_MS, peak2021.t),
-      halvingToCurrentAthDays: daysBetween(HALVING_2024_MS, currentPeak.t),
-      nextHalvingEst: NEXT_HALVING_EST_MS,
-      bottom2018,
-      bottom2022,
-      currentPostAthLow,
-      bottom2018Days: bottom2018 ? daysBetween(peak2017.t, bottom2018.t) : NaN,
-      bottom2022Days: bottom2022 ? daysBetween(peak2021.t, bottom2022.t) : NaN,
-      sameDaysSegments,
-      athToAthSegments,
-      bottomToAthSegments,
-      fullSegment
+      currentDays: Math.max(0, daysBetween(currentPeak.t, latest.t)),
+      currentDrawdown,
+      athToAthSegments
     };
   }
 
-  function compareText(analysis) {
-    const currentSeg = analysis.sameDaysSegments.find(s => s.label === '現在天井後');
-    const s2017 = analysis.sameDaysSegments.find(s => s.label === '2017天井後');
-    const sPrev = analysis.sameDaysSegments.find(s => s.label === '前回天井後');
-    const cur = statsForSegment(currentSeg)?.last?.y;
-    const y2017 = statsForSegment(s2017)?.last?.y;
-    const yPrev = statsForSegment(sPrev)?.last?.y;
-    const parts = [];
-    if (Number.isFinite(cur) && Number.isFinite(y2017)) {
-      parts.push(`2017天井後の同日数時点 ${fmtPct(y2017)} に対し、現在は ${fmtPct(cur)}。${cur > y2017 ? '2017型より下落は浅い。' : '2017型より下落は深い。'}`);
-    }
-    if (Number.isFinite(cur) && Number.isFinite(yPrev)) {
-      parts.push(`前回天井後の同日数時点 ${fmtPct(yPrev)} に対し、現在は ${fmtPct(cur)}。${cur > yPrev ? '前回天井後より下落は浅い。' : '前回天井後より下落は深い。'}`);
-    }
-    return parts.join('<br>');
+  function weeklyKey(ms) {
+    const d = new Date(ms);
+    const day = d.getUTCDay() || 7;
+    const monday = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + 1);
+    return fmtDate(monday);
   }
 
-  function renderSummary() {
-    const a = state.analysis;
-    if (!a) return;
-    $('latestPrice').textContent = fmtUsd(a.latest.close);
-    $('latestDate').textContent = '取得日：' + fmtDate(a.latest.t);
-    $('currentDd').textContent = fmtPct(a.currentDrawdown);
-    $('currentAth').textContent = `ATH：${fmtDate(a.currentPeak.t)} / ${fmtUsd(a.currentPeak.close)}`;
-    $('athDays').textContent = a.currentDays.toLocaleString('ja-JP') + '日';
-    $('athBasis').textContent = 'ATH基準：' + fmtDate(a.currentPeak.t);
-    const prevSeg = a.sameDaysSegments.find(s => s.label === '前回天井後');
-    const prevSame = statsForSegment(prevSeg)?.last?.y;
-    $('prevSameDayDd').textContent = fmtPct(prevSame);
-    $('prevSameDayBasis').textContent = `同${a.currentDays.toLocaleString('ja-JP')}日 / ${fmtDate(a.peak2021.t)}基準`;
-    const nextAth2020 = a.nextHalvingEst + a.halvingToPrevAthDays * DAY_MS;
-    const nextAth2024 = a.nextHalvingEst + a.halvingToCurrentAthDays * DAY_MS;
-    const avgDays = Math.round((a.halvingToPrevAthDays + a.halvingToCurrentAthDays) / 2);
-    const nextAthAvg = a.nextHalvingEst + avgDays * DAY_MS;
-    $('nextHalvingDate').textContent = fmtDate(a.nextHalvingEst) + '頃';
-    const bottomDayValues = [a.bottom2018Days, a.bottom2022Days].filter(Number.isFinite);
-    if (bottomDayValues.length) {
-      const minBottomDays = Math.min(...bottomDayValues);
-      const maxBottomDays = Math.max(...bottomDayValues);
-      const buyStart = a.currentPeak.t + Math.max(0, minBottomDays - 90) * DAY_MS;
-      const buyEnd = a.currentPeak.t + (maxBottomDays + 90) * DAY_MS;
-      $('buyWindow').textContent = `${fmtYearMonth(buyStart)}〜${fmtYearMonth(buyEnd)}`;
-    } else {
-      $('buyWindow').textContent = '--';
+  function resample(candles, mode) {
+    if (mode === 'daily') return candles;
+    const map = new Map();
+    for (const c of candles) {
+      const d = new Date(c.t);
+      let key;
+      if (mode === 'weekly') key = weeklyKey(c.t);
+      else if (mode === 'monthly') key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+      else if (mode === 'yearly') key = String(d.getUTCFullYear());
+      else key = fmtDate(c.t);
+      map.set(key, c);
     }
-    $('buyCondition').textContent = '60,000ドル以下中心';
-    $('nextAth2020Pattern').textContent = `${fmtDate(nextAth2020)}頃 / +${a.halvingToPrevAthDays.toLocaleString('ja-JP')}日`;
-    $('nextAth2024Pattern').textContent = `${fmtDate(nextAth2024)}頃 / +${a.halvingToCurrentAthDays.toLocaleString('ja-JP')}日`;
-    $('nextAthAvgPattern').textContent = `${fmtDate(nextAthAvg)}頃 / +${avgDays.toLocaleString('ja-JP')}日`;
-    const saved = state.savedAt ? new Date(state.savedAt).toLocaleString('ja-JP') : '';
-    updateTopStatus(`最終更新<br>${saved || fmtDate(a.latest.t)}`);
-
-    const sameText = compareText(a);
-    $('judgement').innerHTML = `
-      <b>現在位置：ATH後${a.currentDays.toLocaleString('ja-JP')}日 / 下落率 ${fmtPct(a.currentDrawdown)}</b><br>
-      ${sameText || '比較文を作成できない。'}<br>
-      <span class="muted">これは売買判断ではなく、過去サイクルとの位置確認。</span>
-    `;
+    return Array.from(map.values()).sort((a, b) => a.t - b.t);
   }
 
-  function getCurrentSegments() {
-    const a = state.analysis;
-    if (!a) return [];
-    if (state.mode === 'sameDays') return a.sameDaysSegments;
-    if (state.mode === 'athToAth') return a.athToAthSegments;
-    if (state.mode === 'bottomToAth') return a.bottomToAthSegments;
-    if (state.mode === 'full') return [a.fullSegment];
-    return a.sameDaysSegments;
+  function priceSeries() {
+    return [{
+      label: state.mode === 'daily' ? '日足' : state.mode === 'weekly' ? '週足' : state.mode === 'monthly' ? '月足' : '年足',
+      color: COLORS.price,
+      points: resample(state.candles, state.mode).map(c => ({ x: c.t, y: c.close, t: c.t, price: c.close }))
+    }];
+  }
+
+  function cycleSeries() {
+    const maxDays = state.range === 'all' ? Infinity : Number(state.range);
+    return state.analysis.athToAthSegments.map(seg => ({
+      ...seg,
+      points: seg.points.filter(p => p.x <= maxDays)
+    })).filter(seg => seg.points.length);
+  }
+
+  function getSegments() {
+    if (!state.candles.length || !state.analysis) return [];
+    return state.mode === 'cycle' ? cycleSeries() : priceSeries();
   }
 
   function niceTicks(min, max, count) {
@@ -615,83 +429,87 @@
     return ticks;
   }
 
+  function logTicks(min, max) {
+    const ticks = [];
+    const start = Math.floor(Math.log10(Math.max(1, min)));
+    const end = Math.ceil(Math.log10(Math.max(10, max)));
+    for (let p = start; p <= end; p++) {
+      for (const m of [1, 2, 5]) {
+        const v = m * Math.pow(10, p);
+        if (v >= min * 0.98 && v <= max * 1.02) ticks.push(v);
+      }
+    }
+    return ticks.length ? ticks : niceTicks(min, max, 5);
+  }
+
   function drawChart() {
     const canvas = $('chart');
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     canvas.width = Math.max(320, Math.round(rect.width * dpr));
-    canvas.height = Math.max(240, Math.round(rect.height * dpr));
+    canvas.height = Math.max(260, Math.round(rect.height * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const w = rect.width;
     const h = rect.height;
     ctx.clearRect(0, 0, w, h);
 
-    const segments = getCurrentSegments();
-    if (!segments.length || !segments.some(s => s.points && s.points.length)) {
-      ctx.fillStyle = '#a9bad0';
-      ctx.font = '14px sans-serif';
-      ctx.fillText('データ未取得', 20, 30);
+    const segments = getSegments();
+    if (!segments.length || !segments.some(s => s.points.length)) {
+      ctx.fillStyle = '#8d99aa';
+      ctx.font = '13px sans-serif';
+      ctx.fillText('データ未取得', 18, 28);
       return;
     }
 
-    const isBottomToAth = state.mode === 'bottomToAth';
-    const useLogY = isBottomToAth;
-    const chartY = (p) => isBottomToAth ? pctToMultiple(p.y) : p.y;
-
-    const pad = { l: isBottomToAth ? 72 : 68, r: 14, t: 14, b: 36 };
-    const plotW = w - pad.l - pad.r;
-    const plotH = h - pad.t - pad.b;
+    const isCycle = state.mode === 'cycle';
     const all = segments.flatMap(s => s.points);
     let xMin = Math.min(...all.map(p => p.x));
     let xMax = Math.max(...all.map(p => p.x));
-    let yMin = Math.min(...all.map(p => chartY(p)));
-    let yMax = Math.max(...all.map(p => chartY(p)));
+    let yMin = Math.min(...all.map(p => p.y));
+    let yMax = Math.max(...all.map(p => p.y));
+    const pad = { l: isCycle ? 58 : 62, r: 12, t: 12, b: 34 };
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
 
-    if (state.mode === 'full') {
-      yMin = Math.max(0, yMin * 0.92);
-      yMax = yMax * 1.08;
-    } else if (isBottomToAth) {
-      yMin = Math.min(yMin, 1);
-      yMax = Math.max(yMax, 1);
-      yMin = Math.max(0.45, yMin * 0.90);
-      yMax = Math.max(1.2, yMax * 1.12);
-    } else {
+    if (isCycle) {
       yMin = Math.min(yMin, 0);
       yMax = Math.max(yMax, 0);
       const span = Math.max(10, yMax - yMin);
       yMin -= span * 0.08;
       yMax += span * 0.08;
+    } else {
+      yMin = Math.max(1, yMin * 0.88);
+      yMax = yMax * 1.12;
     }
     if (xMin === xMax) xMax = xMin + 1;
     if (yMin === yMax) yMax = yMin + 1;
 
     const xScale = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * plotW;
     let yScale;
-    if (useLogY) {
-      const logMin = Math.log10(Math.max(0.001, yMin));
-      const logMax = Math.log10(Math.max(0.002, yMax));
-      yScale = (y) => pad.t + (1 - ((Math.log10(Math.max(0.001, y)) - logMin) / (logMax - logMin))) * plotH;
-    } else {
+    if (isCycle) {
       yScale = (y) => pad.t + (1 - ((y - yMin) / (yMax - yMin))) * plotH;
+    } else {
+      const logMin = Math.log10(Math.max(1, yMin));
+      const logMax = Math.log10(Math.max(2, yMax));
+      yScale = (y) => pad.t + (1 - ((Math.log10(Math.max(1, y)) - logMin) / (logMax - logMin))) * plotH;
     }
 
-    ctx.strokeStyle = '#243e5d';
     ctx.lineWidth = 1;
-    ctx.fillStyle = '#a9bad0';
+    ctx.strokeStyle = '#202838';
+    ctx.fillStyle = '#8d99aa';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
 
-    const yTicks = isBottomToAth ? niceMultipleTicks(yMin, yMax) : niceTicks(yMin, yMax, 6);
+    const yTicks = isCycle ? niceTicks(yMin, yMax, 6) : logTicks(yMin, yMax);
     for (const tick of yTicks) {
       const y = yScale(tick);
       ctx.beginPath();
       ctx.moveTo(pad.l, y);
       ctx.lineTo(w - pad.r, y);
       ctx.stroke();
-      const label = state.mode === 'full' ? fmtUsd(tick) : (isBottomToAth ? fmtAxisMultiple(tick) : fmtAxisPct(tick));
-      ctx.fillText(label, pad.l - 6, y);
+      ctx.fillText(isCycle ? fmtAxisPct(tick) : fmtUsd(tick), pad.l - 7, y);
     }
 
     const xTicks = niceTicks(xMin, xMax, 5);
@@ -703,29 +521,18 @@
       ctx.moveTo(x, pad.t);
       ctx.lineTo(x, h - pad.b);
       ctx.stroke();
-      let label;
-      if (state.mode === 'full') label = fmtDate(tick).slice(0, 7);
-      else label = Math.round(tick).toLocaleString('ja-JP') + '日';
+      const label = isCycle ? Math.round(tick).toLocaleString('ja-JP') + '日' : fmtDate(tick).slice(0, 7);
       ctx.fillText(label, x, h - pad.b + 8);
     }
 
-    ctx.strokeStyle = '#3b5d83';
+    ctx.strokeStyle = '#2b3546';
     ctx.lineWidth = 1.2;
     ctx.strokeRect(pad.l, pad.t, plotW, plotH);
 
-    if (isBottomToAth && yMin < 1 && yMax > 1) {
-      const y1 = yScale(1);
-      ctx.setLineDash([5, 4]);
-      ctx.strokeStyle = '#8ea5bd';
-      ctx.beginPath();
-      ctx.moveTo(pad.l, y1);
-      ctx.lineTo(w - pad.r, y1);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    } else if (state.mode !== 'full' && yMin < 0 && yMax > 0) {
+    if (isCycle && yMin < 0 && yMax > 0) {
       const y0 = yScale(0);
       ctx.setLineDash([5, 4]);
-      ctx.strokeStyle = '#8ea5bd';
+      ctx.strokeStyle = '#64748b';
       ctx.beginPath();
       ctx.moveTo(pad.l, y0);
       ctx.lineTo(w - pad.r, y0);
@@ -737,11 +544,11 @@
       const pts = seg.points;
       if (!pts.length) continue;
       ctx.strokeStyle = seg.color;
-      ctx.lineWidth = seg.label.includes('現在') ? 3 : 2;
+      ctx.lineWidth = seg.label.includes('現在') ? 3 : 2.1;
       ctx.beginPath();
       pts.forEach((p, i) => {
         const x = xScale(p.x);
-        const y = yScale(chartY(p));
+        const y = yScale(p.y);
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
@@ -749,79 +556,63 @@
       const last = pts[pts.length - 1];
       ctx.fillStyle = seg.color;
       ctx.beginPath();
-      ctx.arc(xScale(last.x), yScale(chartY(last)), seg.label.includes('現在') ? 4 : 3, 0, Math.PI * 2);
+      ctx.arc(xScale(last.x), yScale(last.y), seg.label.includes('現在') ? 4 : 3, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
-  function renderLegend() {
-    const segments = getCurrentSegments();
-    $('legend').innerHTML = segments.map(s => `<span class="leg"><span class="dot" style="background:${s.color}"></span>${s.label}</span>`).join('');
-  }
-
-  function renderTable() {
+  function renderSummary() {
     const a = state.analysis;
     if (!a) return;
-    const head = $('tableHead');
-    const body = $('tableBody');
-
-    if (state.mode === 'sameDays') {
-      head.innerHTML = '<tr><th>比較対象</th><th>ATH日</th><th>ATH価格</th><th>比較日数</th><th>同日数時点</th><th>期間内最大下落</th><th>最大下落日</th></tr>';
-      body.innerHTML = a.sameDaysSegments.map(seg => {
-        const st = statsForSegment(seg);
-        return `<tr><td>${seg.label}</td><td>${fmtDate(seg.start.t)}</td><td>${fmtUsd(seg.start.close)}</td><td>${st.days.toLocaleString('ja-JP')}日</td><td>${fmtPct(st.last.y)}</td><td>${fmtPct(st.min.y)}</td><td>${fmtDate(st.min.t)} / ${st.min.x.toLocaleString('ja-JP')}日後</td></tr>`;
-      }).join('');
-    } else if (state.mode === 'athToAth') {
-      head.innerHTML = '<tr><th>比較対象</th><th>開始ATH</th><th>終点</th><th>終点まで</th><th>終点騰落率</th><th>倍率</th><th>最大下落</th><th>底打ちまで</th><th>ATH回復まで</th></tr>';
-      body.innerHTML = a.athToAthSegments.map(seg => {
-        const st = statsForSegment(seg);
-        const recovery = st.recovery ? `${st.recovery.x.toLocaleString('ja-JP')}日 / ${fmtDate(st.recovery.t)}` : '--';
-        return `<tr><td>${seg.label}</td><td>${fmtDate(seg.start.t)} / ${fmtUsd(seg.start.close)}</td><td>${fmtDate(seg.end.t)} / ${fmtUsd(seg.end.close)}</td><td>${st.days.toLocaleString('ja-JP')}日</td><td>${fmtPct(st.last.y)}</td><td>${fmtMultipleFromPct(st.last.y)}</td><td>${fmtPct(st.min.y)}</td><td>${st.min.x.toLocaleString('ja-JP')}日 / ${fmtDate(st.min.t)}</td><td>${recovery}</td></tr>`;
-      }).join('');
-    } else if (state.mode === 'bottomToAth') {
-      head.innerHTML = '<tr><th>比較対象</th><th>開始底</th><th>終点</th><th>終点まで</th><th>終点騰落率</th><th>倍率</th><th>最大上昇率</th><th>最大倍率</th><th>備考</th></tr>';
-      body.innerHTML = a.bottomToAthSegments.map(seg => {
-        const st = statsForSegment(seg);
-        const maxP = seg.points.reduce((max, p) => p.y > max.y ? p : max, seg.points[0]);
-        const note = seg.label.includes('暫定') ? '底未確定。最新データ内のATH後安値を暫定底として表示。' : '弱気相場の底から次の大きな天井まで。';
-        return `<tr><td>${seg.label}</td><td>${fmtDate(seg.start.t)} / ${fmtUsd(seg.start.close)}</td><td>${fmtDate(seg.end.t)} / ${fmtUsd(seg.end.close)}</td><td>${st.days.toLocaleString('ja-JP')}日</td><td>${fmtPct(st.last.y)}</td><td>${fmtMultipleFromPct(st.last.y)}</td><td>${fmtPct(maxP.y)} / ${fmtDate(maxP.t)}</td><td>${fmtMultipleFromPct(maxP.y)}</td><td>${note}</td></tr>`;
-      }).join('');
-    } else {
-      const candles = state.candles;
-      const first = candles[0];
-      const last = candles[candles.length - 1];
-      const max = candles.reduce((m, c) => c.close > m.close ? c : m, candles[0]);
-      const min = candles.reduce((m, c) => c.close < m.close ? c : m, candles[0]);
-      head.innerHTML = '<tr><th>項目</th><th>日付</th><th>価格</th><th>備考</th></tr>';
-      body.innerHTML = `
-        <tr><td>開始</td><td>${fmtDate(first.t)}</td><td>${fmtUsd(first.close)}</td><td>Binance日足開始付近</td></tr>
-        <tr><td>最新</td><td>${fmtDate(last.t)}</td><td>${fmtUsd(last.close)}</td><td>最新取得値</td></tr>
-        <tr><td>期間内最高</td><td>${fmtDate(max.t)}</td><td>${fmtUsd(max.close)}</td><td>日足終値ベース</td></tr>
-        <tr><td>期間内最低</td><td>${fmtDate(min.t)}</td><td>${fmtUsd(min.close)}</td><td>日足終値ベース</td></tr>
-      `;
-    }
-  }
-
-  function renderNote() {
-    if (state.mode === 'sameDays') {
-      $('chartNote').textContent = '同日数比較：現在のATH後日数に合わせ、過去サイクルも同じ日数で切る。Y軸はATHからの騰落率。';
-    } else if (state.mode === 'athToAth') {
-      $('chartNote').textContent = 'ATH→次ATH：開始ATHを0%として、次の大きな天井または現在までを実日数で表示。上昇相場の底値比ではなく、前回高値からの天井更新率を見る。';
-    } else if (state.mode === 'bottomToAth') {
-      $('chartNote').textContent = '底→天井：弱気相場の底を1倍として、次の大きな天井までの底値比倍率を対数表示。巨大な2018サイクルで近年サイクルが潰れないようにした。現在ATH後の底は未確定の暫定底。';
-    } else {
-      $('chartNote').textContent = '全期間：Binance BTCUSDTの日足終値をそのまま表示。2013年サイクルは含まない。';
-    }
+    $('latestPrice').textContent = fmtUsd(a.latest.close);
+    $('latestDate').textContent = fmtDate(a.latest.t) + ' / 日足終値';
+    $('athDays').textContent = a.currentDays.toLocaleString('ja-JP') + '日';
+    $('currentDd').textContent = fmtPct(a.currentDrawdown);
+    const met = a.latest.close <= SIXTY_K;
+    $('sixtyCondition').textContent = met ? '達成' : '未達';
+    $('sixtyCondition').className = 'metricValue ' + (met ? 'green' : '');
+    $('conditionPill').textContent = met ? '条件到達' : '監視';
+    $('conditionPill').className = 'pill ' + (met ? 'ready' : 'watch');
+    $('positionLine').textContent = `現在ATHは ${fmtDate(a.currentPeak.t)} / ${fmtUsd(a.currentPeak.close)}。60,000ドル条件は${met ? '到達。月足と資金量を確認。' : '未達。まだ監視。'}`;
+    const saved = state.savedAt ? new Date(state.savedAt).toLocaleString('ja-JP') : '';
+    setTopStatus(saved ? `保存<br>${saved}` : `最新<br>${fmtDate(a.latest.t)}`);
   }
 
   function renderTabs() {
-    document.querySelectorAll('.tab').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.mode === state.mode);
-    });
+    document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === state.mode));
+    $('rangeTabs').classList.toggle('show', state.mode === 'cycle');
+    document.querySelectorAll('#rangeTabs button').forEach(btn => btn.classList.toggle('active', btn.dataset.range === state.range));
+  }
+
+  function renderLegend() {
+    const segments = getSegments();
+    $('legend').innerHTML = segments.map(s => `<span class="leg"><span class="dot" style="background:${s.color}"></span>${s.label}</span>`).join('');
+  }
+
+  function renderNote() {
+    if (state.mode === 'cycle') {
+      const r = state.range === 'all' ? '全期間' : state.range + '日';
+      $('chartNote').textContent = `ATH比較：開始ATHを0%として表示。表示期間は${r}。`;
+    } else {
+      const label = state.mode === 'daily' ? '日足' : state.mode === 'weekly' ? '週足' : state.mode === 'monthly' ? '月足' : '年足';
+      $('chartNote').textContent = `${label}：終値ベース。長期確認のため価格軸は対数表示。`;
+    }
+  }
+
+  function renderDetail() {
+    if (!state.analysis) return;
+    $('dataDetail').innerHTML = `
+      ・価格はBinance BTCUSDTの日足終値。<br>
+      ・現在ATH：${fmtDate(state.analysis.currentPeak.t)} / ${fmtUsd(state.analysis.currentPeak.close)}。<br>
+      ・週足、月足、年足は日足終値から各期間の最終終値を抽出。ローソク足ではない。<br>
+      ・ATH比較は、開始ATHを0%として次ATHまたは現在までを表示。<br>
+      ・これは位置確認用。売買判断ではない。
+    `;
   }
 
   function renderAll() {
     if (!state.candles.length) {
+      renderTabs();
       drawChart();
       return;
     }
@@ -830,44 +621,33 @@
     renderTabs();
     renderLegend();
     renderNote();
-    renderTable();
+    renderDetail();
     drawChart();
   }
 
-  async function handleFetch() {
+  async function handleFetch(silent = false) {
     try {
-      setMessage('', 'ok');
+      if (!silent) setMessage('');
       $('fetchBtn').disabled = true;
-      $('fetchBtn').textContent = '取得中...';
+      $('fetchBtn').textContent = '更新中';
       const data = await fetchAllData();
       state.candles = data.candles;
       state.source = data.source;
       state.savedAt = new Date().toISOString();
       saveData();
       renderAll();
-      setMessage(`取得完了：Binance BTCUSDT / ${fmtDate(state.candles[0].t)}〜${fmtDate(state.candles[state.candles.length - 1].t)}\n接続先：${data.source}`, 'ok');
+      if (!silent) setMessage(`更新完了：${fmtDate(state.candles[0].t)}〜${fmtDate(state.candles[state.candles.length - 1].t)}`);
     } catch (err) {
-      setMessage('価格データ取得失敗。\n' + err.message + '\n保存データがある場合は「保存データ表示」を押す。', 'err');
-      updateTopStatus('取得失敗');
+      if (!silent) setMessage('更新失敗。保存データがあれば表示を継続。\n' + err.message);
+      setTopStatus('更新失敗');
     } finally {
       $('fetchBtn').disabled = false;
-      $('fetchBtn').textContent = '最新データ取得';
-    }
-  }
-
-  function handleLoad() {
-    try {
-      loadSavedData();
-      renderAll();
-      setMessage('保存データを表示した。', 'ok');
-    } catch (err) {
-      setMessage(err.message, 'err');
+      $('fetchBtn').textContent = '更新';
     }
   }
 
   function init() {
-    $('fetchBtn').addEventListener('click', handleFetch);
-    $('loadBtn').addEventListener('click', handleLoad);
+    $('fetchBtn').addEventListener('click', () => handleFetch(false));
     document.querySelectorAll('.tab').forEach(btn => {
       btn.addEventListener('click', () => {
         state.mode = btn.dataset.mode;
@@ -875,17 +655,23 @@
         renderAll();
       });
     });
+    document.querySelectorAll('#rangeTabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.range = btn.dataset.range;
+        localStorage.setItem(RANGE_KEY, state.range);
+        renderAll();
+      });
+    });
     window.addEventListener('resize', () => drawChart());
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
-    renderTabs();
     try {
       loadSavedData();
       renderAll();
-      setMessage('保存データを表示中。最新化する場合は「最新データ取得」を押す。', 'ok');
     } catch (_) {
-      drawChart();
+      renderAll();
+      handleFetch(true);
     }
   }
 
