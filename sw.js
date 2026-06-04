@@ -1,4 +1,4 @@
-const CACHE_NAME = 'btc-position-v2-0-minimal';
+const CACHE_NAME = 'btc-position-v2-1-compare';
 const ASSETS = [
   './',
   './index.html',

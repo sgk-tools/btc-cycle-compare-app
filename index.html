@@ -68,6 +68,19 @@
     .leg{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;border:1px solid var(--line);border-radius:999px;background:#090d13;padding:5px 8px;}
     .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
     .note{font-size:11px;color:var(--muted2);line-height:1.5;margin:10px 3px 2px;}
+    .compareCard{display:none;margin-top:12px;background:linear-gradient(180deg,#111722,#0a0e14);border:1px solid var(--line);border-radius:22px;padding:14px 13px;box-shadow:var(--shadow);}
+    .compareCard.show{display:block;}
+    .sectionTitle{font-size:13px;font-weight:850;letter-spacing:.02em;margin:0 0 11px;color:#e8edf5;}
+    .compareGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
+    .compareBox{background:#090d13;border:1px solid var(--line);border-radius:15px;padding:10px 9px;min-height:76px;}
+    .compareLabel{font-size:10px;color:var(--muted);font-weight:800;line-height:1.25;margin-bottom:7px;}
+    .compareValue{font-size:18px;font-weight:850;letter-spacing:-.02em;line-height:1.1;}
+    .compareSub{font-size:11px;color:var(--muted);line-height:1.35;margin-top:6px;}
+    .compareText{border-top:1px solid var(--line);padding-top:10px;color:#d8dee8;font-size:12px;line-height:1.55;}
+    .miniTable{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px;color:#cbd5e1;}
+    .miniTable th,.miniTable td{border-top:1px solid var(--line);padding:7px 4px;text-align:right;}
+    .miniTable th:first-child,.miniTable td:first-child{text-align:left;}
+    .miniTable th{color:var(--muted);font-weight:800;}
     details{margin-top:12px;border:1px solid var(--line);border-radius:18px;background:#0a0e14;padding:12px 14px;color:var(--muted);}
     summary{font-size:12px;font-weight:800;color:#cbd5e1;cursor:pointer;}
     .detail{font-size:12px;line-height:1.7;margin-top:10px;}
@@ -87,6 +100,10 @@
       .tabs{grid-template-columns:repeat(5,1fr);gap:5px;}
       .tab{font-size:11px;min-height:38px;padding:7px 3px;}
       .canvasWrap{height:326px;}
+      .compareGrid{grid-template-columns:repeat(3,1fr);gap:6px;}
+      .compareBox{padding:9px 7px;min-height:72px;border-radius:14px;}
+      .compareValue{font-size:16px;}
+      .compareSub{font-size:10px;}
     }
   </style>
 </head>
@@ -147,6 +164,29 @@
       <div class="note" id="chartNote">価格チャートは日足終値ベース。長期確認のため対数表示。</div>
     </section>
 
+    <section class="compareCard" id="cycleCompareCard">
+      <div class="sectionTitle">過去比較</div>
+      <div class="compareGrid">
+        <div class="compareBox">
+          <div class="compareLabel">現在</div>
+          <div class="compareValue" id="cmpCurrent">--</div>
+          <div class="compareSub" id="cmpCurrentSub">--</div>
+        </div>
+        <div class="compareBox">
+          <div class="compareLabel">2017型 同日数</div>
+          <div class="compareValue" id="cmp2017">--</div>
+          <div class="compareSub" id="cmp2017Sub">--</div>
+        </div>
+        <div class="compareBox">
+          <div class="compareLabel">前回型 同日数</div>
+          <div class="compareValue" id="cmpPrev">--</div>
+          <div class="compareSub" id="cmpPrevSub">--</div>
+        </div>
+      </div>
+      <div class="compareText" id="cycleCompareText">--</div>
+      <table class="miniTable" id="cycleCompareTable"></table>
+    </section>
+
     <details>
       <summary>データと前提</summary>
       <div class="detail" id="dataDetail">
@@ -157,17 +197,17 @@
       </div>
     </details>
 
-    <div class="footer">v2.0 minimal / APIキー不要 / GitHub Pages対応</div>
+    <div class="footer">v2.1 compare / APIキー不要 / GitHub Pages対応</div>
   </div>
 
 <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '2.0-minimal';
-  const STORAGE_KEY = 'btc_position_v2_0_data';
-  const MODE_KEY = 'btc_position_v2_0_mode';
-  const RANGE_KEY = 'btc_position_v2_0_cycle_range';
+  const APP_VERSION = '2.1-compare';
+  const STORAGE_KEY = 'btc_position_v2_1_data';
+  const MODE_KEY = 'btc_position_v2_1_mode';
+  const RANGE_KEY = 'btc_position_v2_1_cycle_range';
   const DAY_MS = 24 * 60 * 60 * 1000;
   const START_MS = Date.UTC(2017, 7, 17);
   const SIXTY_K = 60000;
@@ -302,6 +342,7 @@
   function loadSavedData() {
     const keys = [
       STORAGE_KEY,
+      'btc_position_v2_0_data',
       'btc_cycle_anomaly_v1_9_data',
       'btc_cycle_anomaly_v1_8_data',
       'btc_cycle_anomaly_v1_7_data',
@@ -561,6 +602,89 @@
     }
   }
 
+  function pointAtDay(seg, day) {
+    if (!seg || !seg.points || !seg.points.length || !Number.isFinite(day)) return null;
+    let best = seg.points[0];
+    let bestDiff = Math.abs(best.x - day);
+    for (const p of seg.points) {
+      const diff = Math.abs(p.x - day);
+      if (diff < bestDiff) {
+        best = p;
+        bestDiff = diff;
+      }
+    }
+    return best;
+  }
+
+  function segmentLengthDays(seg) {
+    if (!seg || !seg.start || !seg.end) return NaN;
+    return daysBetween(seg.start.t, seg.end.t);
+  }
+
+  function minDrawdown(seg, maxDays) {
+    if (!seg || !seg.points || !seg.points.length) return NaN;
+    const pts = seg.points.filter(p => p.x <= maxDays);
+    if (!pts.length) return NaN;
+    return Math.min(...pts.map(p => p.y));
+  }
+
+  function ptDiffText(current, past) {
+    if (!Number.isFinite(current) || !Number.isFinite(past)) return '--';
+    const diff = current - past;
+    const abs = Math.abs(diff).toFixed(1);
+    if (Math.abs(diff) < 0.05) return 'ほぼ同じ';
+    return `${diff > 0 ? '+' : '-'}${abs}pt ${diff > 0 ? '浅い' : '深い'}`;
+  }
+
+  function renderCycleCompare() {
+    const card = $('cycleCompareCard');
+    if (!card || !state.analysis || state.mode !== 'cycle') {
+      if (card) card.className = 'compareCard';
+      return;
+    }
+    const a = state.analysis;
+    const seg2017 = a.athToAthSegments[0];
+    const segPrev = a.athToAthSegments[1];
+    const segCurrent = a.athToAthSegments[2];
+    const day = a.currentDays;
+    const p2017 = pointAtDay(seg2017, day);
+    const pPrev = pointAtDay(segPrev, day);
+    const cur = a.currentDrawdown;
+    $('cmpCurrent').textContent = fmtPct(cur);
+    $('cmpCurrentSub').textContent = `ATH後 ${day.toLocaleString('ja-JP')}日`;
+    $('cmp2017').textContent = p2017 ? fmtPct(p2017.y) : '--';
+    $('cmp2017Sub').textContent = p2017 ? ptDiffText(cur, p2017.y) : '比較不可';
+    $('cmpPrev').textContent = pPrev ? fmtPct(pPrev.y) : '--';
+    $('cmpPrevSub').textContent = pPrev ? ptDiffText(cur, pPrev.y) : '比較不可';
+
+    const maxDays = state.range === 'all' ? Math.max(segmentLengthDays(seg2017), segmentLengthDays(segPrev), segmentLengthDays(segCurrent)) : Number(state.range);
+    const len2017 = segmentLengthDays(seg2017);
+    const lenPrev = segmentLengthDays(segPrev);
+    const avgLen = Math.round((len2017 + lenPrev) / 2);
+    const remain = avgLen - day;
+    const shallow2017 = p2017 ? cur - p2017.y : NaN;
+    const shallowPrev = pPrev ? cur - pPrev.y : NaN;
+    let position = '過去比較は参考値。';
+    if (Number.isFinite(shallow2017) && Number.isFinite(shallowPrev)) {
+      if (shallow2017 > 10 && shallowPrev > 10) position = '現在の下落率は、過去2サイクルの同日数より明確に浅い。';
+      else if (shallow2017 < -10 && shallowPrev < -10) position = '現在の下落率は、過去2サイクルの同日数より深い。';
+      else position = '現在の下落率は、過去2サイクルの同日数と大きくは離れていない。';
+    }
+    const remainText = remain > 0 ? `過去2サイクルの次ATHまでの平均日数までは、単純比較であと約${remain.toLocaleString('ja-JP')}日。` : `過去2サイクルの次ATHまでの平均日数はすでに超過。`;
+    $('cycleCompareText').textContent = `${position} ${remainText} これは売買判断ではなく、サイクル上の位置確認。`;
+
+    const rows = [
+      { name:'2017型', same:p2017 ? fmtPct(p2017.y) : '--', min:fmtPct(minDrawdown(seg2017, maxDays)), length:Number.isFinite(len2017) ? len2017.toLocaleString('ja-JP') + '日' : '--' },
+      { name:'前回型', same:pPrev ? fmtPct(pPrev.y) : '--', min:fmtPct(minDrawdown(segPrev, maxDays)), length:Number.isFinite(lenPrev) ? lenPrev.toLocaleString('ja-JP') + '日' : '--' },
+      { name:'現在', same:fmtPct(cur), min:fmtPct(minDrawdown(segCurrent, maxDays)), length:day.toLocaleString('ja-JP') + '日' }
+    ];
+    $('cycleCompareTable').innerHTML = `
+      <thead><tr><th>サイクル</th><th>同日数</th><th>${state.range === 'all' ? '全期間最深' : state.range + '日内最深'}</th><th>次ATH/現在まで</th></tr></thead>
+      <tbody>${rows.map(r => `<tr><td>${r.name}</td><td>${r.same}</td><td>${r.min}</td><td>${r.length}</td></tr>`).join('')}</tbody>
+    `;
+    card.className = 'compareCard show';
+  }
+
   function renderSummary() {
     const a = state.analysis;
     if (!a) return;
@@ -622,6 +746,7 @@
     renderLegend();
     renderNote();
     renderDetail();
+    renderCycleCompare();
     drawChart();
   }
 

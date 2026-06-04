@@ -1,7 +1,7 @@
 {
   "name": "BTC現在地",
   "short_name": "BTC現在地",
-  "description": "BTCの現在価格、ATH後日数、ATH比、60,000ドル条件、ATHサイクル比較を一画面で確認する最小構成アプリ",
+  "description": "BTCの現在価格、ATH後日数、ATH比、60,000ドル条件、過去サイクル比較を一画面で確認するアプリ",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#05070b",
