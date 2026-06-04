@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#05070b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="BTC現在地">
+  <meta name="apple-mobile-web-app-title" content="BTCサイクル比較">
   <link rel="manifest" href="manifest.webmanifest">
-  <title>BTC現在地</title>
+  <title>BTCサイクル比較</title>
   <style>
     :root{
       --bg:#05070b;
@@ -30,36 +30,37 @@
     body{min-height:100vh;padding-bottom:calc(22px + env(safe-area-inset-bottom));}
     .wrap{width:min(780px,100%);margin:0 auto;padding:18px 14px 28px;}
     header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 18px;}
-    h1{font-size:20px;line-height:1.1;margin:0;font-weight:750;letter-spacing:.01em;}
+    h1{font-size:20px;line-height:1.1;margin:0;font-weight:800;letter-spacing:.01em;}
     .status{font-size:11px;color:var(--muted);text-align:right;line-height:1.35;white-space:nowrap;}
     .hero{background:linear-gradient(180deg,#171d27,#0d1118);border:1px solid var(--line);border-radius:24px;padding:20px 18px 18px;box-shadow:var(--shadow);margin-bottom:12px;}
     .heroTop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;}
-    .eyebrow{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;}
-    .price{font-size:44px;font-weight:800;letter-spacing:-.04em;line-height:1;}
+    .eyebrow{font-size:12px;color:var(--muted);font-weight:750;margin-bottom:6px;}
+    .price{font-size:44px;font-weight:850;letter-spacing:-.04em;line-height:1;}
     .date{font-size:12px;color:var(--muted);margin-top:7px;}
     .decision{min-width:128px;text-align:right;}
-    .pill{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:800;color:var(--text);background:#0b0f15;}
+    .pill{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:850;color:var(--text);background:#0b0f15;}
     .pill.watch{border-color:#4b5563;color:#d4d9e2;}
     .pill.ready{border-color:#276749;color:#bbf7d0;background:#082112;}
-    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;}
     .metric{background:#090d13;border:1px solid var(--line);border-radius:16px;padding:12px 10px;min-height:78px;}
-    .metricLabel{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;line-height:1.25;}
-    .metricValue{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}
+    .metricLabel{font-size:11px;color:var(--muted);font-weight:800;margin-bottom:8px;line-height:1.25;}
+    .metricValue{font-size:20px;font-weight:850;letter-spacing:-.02em;line-height:1.1;}
     .metricValue.red{color:var(--red)}
     .metricValue.green{color:var(--green)}
     .oneLine{margin-top:14px;color:#d8dee8;font-size:13px;line-height:1.5;}
     .bar{display:flex;gap:8px;align-items:center;margin:12px 0;}
-    button{appearance:none;border:1px solid var(--line);background:#111722;color:var(--text);border-radius:999px;min-height:42px;padding:9px 14px;font-size:13px;font-weight:800;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+    button{appearance:none;border:1px solid var(--line);background:#111722;color:var(--text);border-radius:999px;min-height:42px;padding:9px 14px;font-size:13px;font-weight:850;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
     button:active{transform:translateY(1px)}
     .update{margin-left:auto;background:#f5f7fb;color:#05070b;border-color:#f5f7fb;}
     .msg{display:none;border:1px solid var(--line);border-radius:14px;background:#0e131b;color:var(--muted);font-size:12px;line-height:1.5;padding:10px 12px;margin:8px 0 12px;white-space:pre-wrap;}
     .msg.show{display:block}
     .chartCard{background:linear-gradient(180deg,#111722,#0a0e14);border:1px solid var(--line);border-radius:24px;padding:12px;box-shadow:var(--shadow);}
-    .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px;}
+    .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
     .tab{border-radius:14px;min-height:40px;padding:8px 5px;font-size:12px;background:#090d13;color:var(--muted);}
     .tab.active{background:#f5f7fb;color:#05070b;border-color:#f5f7fb;}
     .range{display:none;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 10px;}
     .range.show{display:grid;}
+    .range.three{grid-template-columns:repeat(3,1fr);}
     .range button{border-radius:13px;min-height:36px;padding:7px 5px;font-size:12px;background:#090d13;color:var(--muted);}
     .range button.active{background:#263142;color:#fff;border-color:#39465a;}
     .canvasWrap{height:354px;border:1px solid #202838;border-radius:18px;background:#06090e;padding:8px;overflow:hidden;}
@@ -68,21 +69,20 @@
     .leg{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;border:1px solid var(--line);border-radius:999px;background:#090d13;padding:5px 8px;}
     .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
     .note{font-size:11px;color:var(--muted2);line-height:1.5;margin:10px 3px 2px;}
-    .compareCard{display:none;margin-top:12px;background:linear-gradient(180deg,#111722,#0a0e14);border:1px solid var(--line);border-radius:22px;padding:14px 13px;box-shadow:var(--shadow);}
-    .compareCard.show{display:block;}
+    .compareCard{margin-top:12px;background:linear-gradient(180deg,#111722,#0a0e14);border:1px solid var(--line);border-radius:22px;padding:14px 13px;box-shadow:var(--shadow);}
     .sectionTitle{font-size:13px;font-weight:850;letter-spacing:.02em;margin:0 0 11px;color:#e8edf5;}
     .compareGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
     .compareBox{background:#090d13;border:1px solid var(--line);border-radius:15px;padding:10px 9px;min-height:76px;}
-    .compareLabel{font-size:10px;color:var(--muted);font-weight:800;line-height:1.25;margin-bottom:7px;}
+    .compareLabel{font-size:10px;color:var(--muted);font-weight:850;line-height:1.25;margin-bottom:7px;}
     .compareValue{font-size:18px;font-weight:850;letter-spacing:-.02em;line-height:1.1;}
     .compareSub{font-size:11px;color:var(--muted);line-height:1.35;margin-top:6px;}
     .compareText{border-top:1px solid var(--line);padding-top:10px;color:#d8dee8;font-size:12px;line-height:1.55;}
     .miniTable{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px;color:#cbd5e1;}
     .miniTable th,.miniTable td{border-top:1px solid var(--line);padding:7px 4px;text-align:right;}
     .miniTable th:first-child,.miniTable td:first-child{text-align:left;}
-    .miniTable th{color:var(--muted);font-weight:800;}
+    .miniTable th{color:var(--muted);font-weight:850;}
     details{margin-top:12px;border:1px solid var(--line);border-radius:18px;background:#0a0e14;padding:12px 14px;color:var(--muted);}
-    summary{font-size:12px;font-weight:800;color:#cbd5e1;cursor:pointer;}
+    summary{font-size:12px;font-weight:850;color:#cbd5e1;cursor:pointer;}
     .detail{font-size:12px;line-height:1.7;margin-top:10px;}
     .footer{font-size:11px;color:var(--muted2);line-height:1.45;margin-top:13px;text-align:center;}
     @media (max-width:560px){
@@ -93,11 +93,11 @@
       .heroTop{gap:8px;}
       .decision{min-width:108px;}
       .pill{font-size:11px;padding:7px 9px;}
-      .metrics{grid-template-columns:repeat(3,1fr);gap:6px;}
-      .metric{padding:10px 8px;min-height:72px;border-radius:14px;}
+      .metrics{grid-template-columns:repeat(2,1fr);gap:6px;}
+      .metric{padding:10px 8px;min-height:68px;border-radius:14px;}
       .metricLabel{font-size:10px;}
       .metricValue{font-size:18px;}
-      .tabs{grid-template-columns:repeat(5,1fr);gap:5px;}
+      .tabs{grid-template-columns:repeat(2,1fr);gap:5px;}
       .tab{font-size:11px;min-height:38px;padding:7px 3px;}
       .canvasWrap{height:326px;}
       .compareGrid{grid-template-columns:repeat(3,1fr);gap:6px;}
@@ -110,7 +110,7 @@
 <body>
   <div class="wrap">
     <header>
-      <h1>BTC現在地</h1>
+      <h1>BTCサイクル比較</h1>
       <div class="status" id="topStatus">未取得</div>
     </header>
 
@@ -133,6 +133,10 @@
           <div class="metricValue red" id="currentDd">--</div>
         </div>
         <div class="metric">
+          <div class="metricLabel">ATH→暫定底</div>
+          <div class="metricValue" id="bottomDays">--</div>
+        </div>
+        <div class="metric">
           <div class="metricLabel">60,000条件</div>
           <div class="metricValue" id="sixtyCondition">--</div>
         </div>
@@ -147,40 +151,34 @@
 
     <section class="chartCard">
       <div class="tabs" id="tabs">
-        <button class="tab active" data-mode="daily">日足</button>
-        <button class="tab" data-mode="weekly">週足</button>
-        <button class="tab" data-mode="monthly">月足</button>
-        <button class="tab" data-mode="yearly">年足</button>
-        <button class="tab" data-mode="cycle">ATH</button>
+        <button class="tab active" data-mode="athCurrent">ATH→現在</button>
+        <button class="tab" data-mode="athBottom">ATH→底値</button>
+        <button class="tab" data-mode="bottomAround">底値前後</button>
+        <button class="tab" data-mode="athNext">ATH→次ATH</button>
       </div>
-      <div class="range" id="rangeTabs">
-        <button data-range="500">500日</button>
-        <button data-range="1000">1000日</button>
-        <button data-range="1500" class="active">1500日</button>
-        <button data-range="all">全期間</button>
-      </div>
+      <div class="range" id="rangeTabs"></div>
       <div class="canvasWrap"><canvas id="chart"></canvas></div>
       <div class="legend" id="legend"></div>
-      <div class="note" id="chartNote">価格チャートは日足終値ベース。長期確認のため対数表示。</div>
+      <div class="note" id="chartNote">ATHを0%として過去サイクルと現在サイクルを比較。</div>
     </section>
 
     <section class="compareCard" id="cycleCompareCard">
-      <div class="sectionTitle">過去比較</div>
+      <div class="sectionTitle" id="compareTitle">過去比較</div>
       <div class="compareGrid">
         <div class="compareBox">
-          <div class="compareLabel">現在</div>
-          <div class="compareValue" id="cmpCurrent">--</div>
-          <div class="compareSub" id="cmpCurrentSub">--</div>
+          <div class="compareLabel" id="box1Label">現在</div>
+          <div class="compareValue" id="box1Value">--</div>
+          <div class="compareSub" id="box1Sub">--</div>
         </div>
         <div class="compareBox">
-          <div class="compareLabel">2017型 同日数</div>
-          <div class="compareValue" id="cmp2017">--</div>
-          <div class="compareSub" id="cmp2017Sub">--</div>
+          <div class="compareLabel" id="box2Label">2017型</div>
+          <div class="compareValue" id="box2Value">--</div>
+          <div class="compareSub" id="box2Sub">--</div>
         </div>
         <div class="compareBox">
-          <div class="compareLabel">前回型 同日数</div>
-          <div class="compareValue" id="cmpPrev">--</div>
-          <div class="compareSub" id="cmpPrevSub">--</div>
+          <div class="compareLabel" id="box3Label">前回型</div>
+          <div class="compareValue" id="box3Value">--</div>
+          <div class="compareSub" id="box3Sub">--</div>
         </div>
       </div>
       <div class="compareText" id="cycleCompareText">--</div>
@@ -191,23 +189,24 @@
       <summary>データと前提</summary>
       <div class="detail" id="dataDetail">
         ・価格はBinance BTCUSDTの日足終値。<br>
-        ・週足、月足、年足は日足終値から各期間の最終終値を抽出。ローソク足ではない。<br>
-        ・ATH比較は、開始ATHを0%として次ATHまたは現在までを表示。<br>
+        ・比較対象は2017 ATH→前回ATH、前回ATH→現在ATH、現在ATH→現在。<br>
+        ・現在サイクルの底値は未確定のため「暫定底」と表示。<br>
         ・これは位置確認用。売買判断ではない。
       </div>
     </details>
 
-    <div class="footer">v2.1 compare / APIキー不要 / GitHub Pages対応</div>
+    <div class="footer">v2.2 cycle / APIキー不要 / GitHub Pages対応</div>
   </div>
 
 <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '2.1-compare';
-  const STORAGE_KEY = 'btc_position_v2_1_data';
-  const MODE_KEY = 'btc_position_v2_1_mode';
-  const RANGE_KEY = 'btc_position_v2_1_cycle_range';
+  const APP_VERSION = '2.2-cycle';
+  const STORAGE_KEY = 'btc_cycle_compare_v2_2_data';
+  const MODE_KEY = 'btc_cycle_compare_v2_2_mode';
+  const RANGE_KEY = 'btc_cycle_compare_v2_2_range';
+  const BOTTOM_RANGE_KEY = 'btc_cycle_compare_v2_2_bottom_range';
   const DAY_MS = 24 * 60 * 60 * 1000;
   const START_MS = Date.UTC(2017, 7, 17);
   const SIXTY_K = 60000;
@@ -222,8 +221,7 @@
   const COLORS = {
     cycle2017: '#facc15',
     prevCycle: '#4ade80',
-    current: '#fb7185',
-    price: '#69b7ff'
+    current: '#fb7185'
   };
 
   const $ = (id) => document.getElementById(id);
@@ -231,8 +229,9 @@
     candles: [],
     source: '',
     savedAt: '',
-    mode: localStorage.getItem(MODE_KEY) || 'daily',
+    mode: localStorage.getItem(MODE_KEY) || 'athCurrent',
     range: localStorage.getItem(RANGE_KEY) || '1500',
+    bottomRange: localStorage.getItem(BOTTOM_RANGE_KEY) || '365',
     analysis: null
   };
 
@@ -342,6 +341,7 @@
   function loadSavedData() {
     const keys = [
       STORAGE_KEY,
+      'btc_position_v2_1_data',
       'btc_position_v2_0_data',
       'btc_cycle_anomaly_v1_9_data',
       'btc_cycle_anomaly_v1_8_data',
@@ -375,16 +375,24 @@
     return range.reduce((max, c) => c.close > max.close ? c : max, range[0]);
   }
 
-  function buildSegmentToEnd(candles, startCandle, endCandle, label, color) {
-    if (!startCandle || !endCandle) return null;
-    const range = sliceRange(candles, startCandle.t, endCandle.t);
-    const points = range.map(c => ({
-      x: daysBetween(startCandle.t, c.t),
-      y: (c.close / startCandle.close - 1) * 100,
-      t: c.t,
-      price: c.close
-    }));
-    return { label, color, points, start: startCandle, end: endCandle };
+  function findMinBetween(candles, startMs, endMs) {
+    const range = sliceRange(candles, startMs, endMs);
+    if (!range.length) return null;
+    return range.reduce((min, c) => c.close < min.close ? c : min, range[0]);
+  }
+
+  function drawdownFromAth(cycle, candle) {
+    if (!cycle || !cycle.ath || !candle) return NaN;
+    return (candle.close / cycle.ath.close - 1) * 100;
+  }
+
+  function buildCycle(candles, key, label, color, ath, end, tentative) {
+    if (!ath || !end) return null;
+    const bottom = findMinBetween(candles, ath.t, end.t);
+    if (!bottom) return null;
+    const bottomDays = daysBetween(ath.t, bottom.t);
+    const bottomDd = drawdownFromAth({ ath }, bottom);
+    return { key, label, color, ath, end, bottom, bottomDays, bottomDd, tentative: !!tentative };
   }
 
   function analyze(candles) {
@@ -393,64 +401,74 @@
     const peak2021 = findMaxInRange(candles, '2021-10-01', '2022-01-31');
     const currentPeak = findMaxInRange(candles, '2024-01-01', fmtDate(latest.t));
     if (!peak2017 || !peak2021 || !currentPeak) throw new Error('ATH基準を算出できない');
-    const athToAthSegments = [
-      buildSegmentToEnd(candles, peak2017, peak2021, '2017 ATH→前回ATH', COLORS.cycle2017),
-      buildSegmentToEnd(candles, peak2021, currentPeak, '前回ATH→現在ATH', COLORS.prevCycle),
-      buildSegmentToEnd(candles, currentPeak, latest, '現在ATH→現在', COLORS.current)
+    const cycles = [
+      buildCycle(candles, 'cycle2017', '2017型', COLORS.cycle2017, peak2017, peak2021, false),
+      buildCycle(candles, 'prevCycle', '前回型', COLORS.prevCycle, peak2021, currentPeak, false),
+      buildCycle(candles, 'current', '現在', COLORS.current, currentPeak, latest, true)
     ].filter(Boolean);
+    const current = cycles[2];
     const currentDrawdown = (latest.close / currentPeak.close - 1) * 100;
-    return {
-      latest,
-      peak2017,
-      peak2021,
-      currentPeak,
-      currentDays: Math.max(0, daysBetween(currentPeak.t, latest.t)),
-      currentDrawdown,
-      athToAthSegments
-    };
+    const currentDays = Math.max(0, daysBetween(currentPeak.t, latest.t));
+    return { latest, peak2017, peak2021, currentPeak, cycles, current, currentDays, currentDrawdown };
   }
 
-  function weeklyKey(ms) {
-    const d = new Date(ms);
-    const day = d.getUTCDay() || 7;
-    const monday = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + 1);
-    return fmtDate(monday);
+  function pointsAthToEnd(cycle, maxDays) {
+    const endByRange = Number.isFinite(maxDays) ? cycle.ath.t + maxDays * DAY_MS : cycle.end.t;
+    const range = sliceRange(state.candles, cycle.ath.t, Math.min(cycle.end.t, endByRange));
+    return range.map(c => ({
+      x: daysBetween(cycle.ath.t, c.t),
+      y: drawdownFromAth(cycle, c),
+      t: c.t,
+      price: c.close
+    }));
   }
 
-  function resample(candles, mode) {
-    if (mode === 'daily') return candles;
-    const map = new Map();
-    for (const c of candles) {
-      const d = new Date(c.t);
-      let key;
-      if (mode === 'weekly') key = weeklyKey(c.t);
-      else if (mode === 'monthly') key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
-      else if (mode === 'yearly') key = String(d.getUTCFullYear());
-      else key = fmtDate(c.t);
-      map.set(key, c);
-    }
-    return Array.from(map.values()).sort((a, b) => a.t - b.t);
+  function pointsAthToBottom(cycle) {
+    const range = sliceRange(state.candles, cycle.ath.t, cycle.bottom.t);
+    return range.map(c => ({
+      x: daysBetween(cycle.ath.t, c.t),
+      y: drawdownFromAth(cycle, c),
+      t: c.t,
+      price: c.close
+    }));
   }
 
-  function priceSeries() {
-    return [{
-      label: state.mode === 'daily' ? '日足' : state.mode === 'weekly' ? '週足' : state.mode === 'monthly' ? '月足' : '年足',
-      color: COLORS.price,
-      points: resample(state.candles, state.mode).map(c => ({ x: c.t, y: c.close, t: c.t, price: c.close }))
-    }];
+  function pointsBottomAround(cycle, windowDays) {
+    const start = Math.max(cycle.ath.t, cycle.bottom.t - windowDays * DAY_MS);
+    const end = Math.min(cycle.end.t, cycle.bottom.t + windowDays * DAY_MS);
+    const range = sliceRange(state.candles, start, end);
+    return range.map(c => ({
+      x: daysBetween(cycle.bottom.t, c.t),
+      y: drawdownFromAth(cycle, c),
+      t: c.t,
+      price: c.close
+    }));
   }
 
-  function cycleSeries() {
-    const maxDays = state.range === 'all' ? Infinity : Number(state.range);
-    return state.analysis.athToAthSegments.map(seg => ({
-      ...seg,
-      points: seg.points.filter(p => p.x <= maxDays)
-    })).filter(seg => seg.points.length);
+  function currentCompareLimit() {
+    return state.analysis ? state.analysis.currentDays : 0;
+  }
+
+  function getMaxDaysForAthNext() {
+    return state.range === 'all' ? Infinity : Number(state.range);
   }
 
   function getSegments() {
-    if (!state.candles.length || !state.analysis) return [];
-    return state.mode === 'cycle' ? cycleSeries() : priceSeries();
+    if (!state.analysis || !state.analysis.cycles.length) return [];
+    const cycles = state.analysis.cycles;
+    if (state.mode === 'athCurrent') {
+      const maxDays = currentCompareLimit();
+      return cycles.map(c => ({ ...c, points: pointsAthToEnd(c, maxDays), marker: null })).filter(s => s.points.length);
+    }
+    if (state.mode === 'athBottom') {
+      return cycles.map(c => ({ ...c, points: pointsAthToBottom(c), marker: { x: c.bottomDays, y: c.bottomDd } })).filter(s => s.points.length);
+    }
+    if (state.mode === 'bottomAround') {
+      const w = Number(state.bottomRange);
+      return cycles.map(c => ({ ...c, points: pointsBottomAround(c, w), marker: { x: 0, y: c.bottomDd } })).filter(s => s.points.length);
+    }
+    const maxDays = getMaxDaysForAthNext();
+    return cycles.map(c => ({ ...c, points: pointsAthToEnd(c, maxDays), marker: { x: c.bottomDays, y: c.bottomDd } })).filter(s => s.points.length);
   }
 
   function niceTicks(min, max, count) {
@@ -468,19 +486,6 @@
     const ticks = [];
     for (let v = first; v <= last + step * 0.5; v += step) ticks.push(v);
     return ticks;
-  }
-
-  function logTicks(min, max) {
-    const ticks = [];
-    const start = Math.floor(Math.log10(Math.max(1, min)));
-    const end = Math.ceil(Math.log10(Math.max(10, max)));
-    for (let p = start; p <= end; p++) {
-      for (const m of [1, 2, 5]) {
-        const v = m * Math.pow(10, p);
-        if (v >= min * 0.98 && v <= max * 1.02) ticks.push(v);
-      }
-    }
-    return ticks.length ? ticks : niceTicks(min, max, 5);
   }
 
   function drawChart() {
@@ -503,38 +508,24 @@
       return;
     }
 
-    const isCycle = state.mode === 'cycle';
     const all = segments.flatMap(s => s.points);
     let xMin = Math.min(...all.map(p => p.x));
     let xMax = Math.max(...all.map(p => p.x));
     let yMin = Math.min(...all.map(p => p.y));
     let yMax = Math.max(...all.map(p => p.y));
-    const pad = { l: isCycle ? 58 : 62, r: 12, t: 12, b: 34 };
-    const plotW = w - pad.l - pad.r;
-    const plotH = h - pad.t - pad.b;
-
-    if (isCycle) {
-      yMin = Math.min(yMin, 0);
-      yMax = Math.max(yMax, 0);
-      const span = Math.max(10, yMax - yMin);
-      yMin -= span * 0.08;
-      yMax += span * 0.08;
-    } else {
-      yMin = Math.max(1, yMin * 0.88);
-      yMax = yMax * 1.12;
-    }
+    yMin = Math.min(yMin, 0);
+    yMax = Math.max(yMax, 0);
+    const ySpan = Math.max(10, yMax - yMin);
+    yMin -= ySpan * 0.08;
+    yMax += ySpan * 0.08;
     if (xMin === xMax) xMax = xMin + 1;
     if (yMin === yMax) yMax = yMin + 1;
 
+    const pad = { l: 58, r: 12, t: 12, b: 34 };
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
     const xScale = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * plotW;
-    let yScale;
-    if (isCycle) {
-      yScale = (y) => pad.t + (1 - ((y - yMin) / (yMax - yMin))) * plotH;
-    } else {
-      const logMin = Math.log10(Math.max(1, yMin));
-      const logMax = Math.log10(Math.max(2, yMax));
-      yScale = (y) => pad.t + (1 - ((Math.log10(Math.max(1, y)) - logMin) / (logMax - logMin))) * plotH;
-    }
+    const yScale = (y) => pad.t + (1 - ((y - yMin) / (yMax - yMin))) * plotH;
 
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#202838';
@@ -543,14 +534,14 @@
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
 
-    const yTicks = isCycle ? niceTicks(yMin, yMax, 6) : logTicks(yMin, yMax);
+    const yTicks = niceTicks(yMin, yMax, 6);
     for (const tick of yTicks) {
       const y = yScale(tick);
       ctx.beginPath();
       ctx.moveTo(pad.l, y);
       ctx.lineTo(w - pad.r, y);
       ctx.stroke();
-      ctx.fillText(isCycle ? fmtAxisPct(tick) : fmtUsd(tick), pad.l - 7, y);
+      ctx.fillText(fmtAxisPct(tick), pad.l - 7, y);
     }
 
     const xTicks = niceTicks(xMin, xMax, 5);
@@ -562,7 +553,7 @@
       ctx.moveTo(x, pad.t);
       ctx.lineTo(x, h - pad.b);
       ctx.stroke();
-      const label = isCycle ? Math.round(tick).toLocaleString('ja-JP') + '日' : fmtDate(tick).slice(0, 7);
+      const label = state.mode === 'bottomAround' ? (tick > 0 ? '+' : '') + Math.round(tick).toLocaleString('ja-JP') + '日' : Math.round(tick).toLocaleString('ja-JP') + '日';
       ctx.fillText(label, x, h - pad.b + 8);
     }
 
@@ -570,7 +561,7 @@
     ctx.lineWidth = 1.2;
     ctx.strokeRect(pad.l, pad.t, plotW, plotH);
 
-    if (isCycle && yMin < 0 && yMax > 0) {
+    if (yMin < 0 && yMax > 0) {
       const y0 = yScale(0);
       ctx.setLineDash([5, 4]);
       ctx.strokeStyle = '#64748b';
@@ -581,11 +572,22 @@
       ctx.setLineDash([]);
     }
 
+    if (state.mode === 'bottomAround' && xMin < 0 && xMax > 0) {
+      const x0 = xScale(0);
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.moveTo(x0, pad.t);
+      ctx.lineTo(x0, h - pad.b);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
     for (const seg of segments) {
       const pts = seg.points;
       if (!pts.length) continue;
       ctx.strokeStyle = seg.color;
-      ctx.lineWidth = seg.label.includes('現在') ? 3 : 2.1;
+      ctx.lineWidth = seg.key === 'current' ? 3 : 2.1;
       ctx.beginPath();
       pts.forEach((p, i) => {
         const x = xScale(p.x);
@@ -597,16 +599,28 @@
       const last = pts[pts.length - 1];
       ctx.fillStyle = seg.color;
       ctx.beginPath();
-      ctx.arc(xScale(last.x), yScale(last.y), seg.label.includes('現在') ? 4 : 3, 0, Math.PI * 2);
+      ctx.arc(xScale(last.x), yScale(last.y), seg.key === 'current' ? 4 : 3, 0, Math.PI * 2);
       ctx.fill();
+      if (seg.marker) {
+        ctx.save();
+        ctx.strokeStyle = seg.color;
+        ctx.fillStyle = '#06090e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(xScale(seg.marker.x), yScale(seg.marker.y), seg.key === 'current' ? 5 : 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
     }
   }
 
-  function pointAtDay(seg, day) {
-    if (!seg || !seg.points || !seg.points.length || !Number.isFinite(day)) return null;
-    let best = seg.points[0];
+  function pointAtDay(cycle, day) {
+    const pts = pointsAthToEnd(cycle, day);
+    if (!pts.length) return null;
+    let best = pts[0];
     let bestDiff = Math.abs(best.x - day);
-    for (const p of seg.points) {
+    for (const p of pts) {
       const diff = Math.abs(p.x - day);
       if (diff < bestDiff) {
         best = p;
@@ -616,16 +630,9 @@
     return best;
   }
 
-  function segmentLengthDays(seg) {
-    if (!seg || !seg.start || !seg.end) return NaN;
-    return daysBetween(seg.start.t, seg.end.t);
-  }
-
-  function minDrawdown(seg, maxDays) {
-    if (!seg || !seg.points || !seg.points.length) return NaN;
-    const pts = seg.points.filter(p => p.x <= maxDays);
-    if (!pts.length) return NaN;
-    return Math.min(...pts.map(p => p.y));
+  function cycleLengthDays(cycle) {
+    if (!cycle || !cycle.ath || !cycle.end) return NaN;
+    return daysBetween(cycle.ath.t, cycle.end.t);
   }
 
   function ptDiffText(current, past) {
@@ -636,53 +643,65 @@
     return `${diff > 0 ? '+' : '-'}${abs}pt ${diff > 0 ? '浅い' : '深い'}`;
   }
 
-  function renderCycleCompare() {
-    const card = $('cycleCompareCard');
-    if (!card || !state.analysis || state.mode !== 'cycle') {
-      if (card) card.className = 'compareCard';
+  function setBox(n, label, value, sub) {
+    $(`box${n}Label`).textContent = label;
+    $(`box${n}Value`).textContent = value;
+    $(`box${n}Sub`).textContent = sub;
+  }
+
+  function cycleRow(cycle) {
+    const endLabel = cycle.tentative ? '現在まで' : '次ATHまで';
+    return `<tr><td>${cycle.label}${cycle.tentative ? '（暫定）' : ''}</td><td>${cycle.bottomDays.toLocaleString('ja-JP')}日</td><td>${fmtPct(cycle.bottomDd)}</td><td>${fmtDate(cycle.bottom.t)}</td><td>${cycleLengthDays(cycle).toLocaleString('ja-JP')}日 ${endLabel}</td></tr>`;
+  }
+
+  function renderCompare() {
+    if (!state.analysis) return;
+    const a = state.analysis;
+    const [c2017, cPrev, cCur] = a.cycles;
+    $('compareTitle').textContent = '過去比較';
+
+    if (state.mode === 'athCurrent') {
+      const day = a.currentDays;
+      const p2017 = pointAtDay(c2017, day);
+      const pPrev = pointAtDay(cPrev, day);
+      setBox(1, '現在', fmtPct(a.currentDrawdown), `ATH後 ${day.toLocaleString('ja-JP')}日`);
+      setBox(2, '2017型 同日数', p2017 ? fmtPct(p2017.y) : '--', p2017 ? ptDiffText(a.currentDrawdown, p2017.y) : '比較不可');
+      setBox(3, '前回型 同日数', pPrev ? fmtPct(pPrev.y) : '--', pPrev ? ptDiffText(a.currentDrawdown, pPrev.y) : '比較不可');
+      $('cycleCompareText').textContent = '現在サイクルの経過日数に合わせて、過去2サイクルを同じ日数で切って比較。これは売買判断ではなく、現在位置の確認。';
+      $('cycleCompareTable').innerHTML = `<thead><tr><th>サイクル</th><th>ATH→底値</th><th>最大下落</th><th>底値日</th><th>期間</th></tr></thead><tbody>${a.cycles.map(cycleRow).join('')}</tbody>`;
       return;
     }
-    const a = state.analysis;
-    const seg2017 = a.athToAthSegments[0];
-    const segPrev = a.athToAthSegments[1];
-    const segCurrent = a.athToAthSegments[2];
-    const day = a.currentDays;
-    const p2017 = pointAtDay(seg2017, day);
-    const pPrev = pointAtDay(segPrev, day);
-    const cur = a.currentDrawdown;
-    $('cmpCurrent').textContent = fmtPct(cur);
-    $('cmpCurrentSub').textContent = `ATH後 ${day.toLocaleString('ja-JP')}日`;
-    $('cmp2017').textContent = p2017 ? fmtPct(p2017.y) : '--';
-    $('cmp2017Sub').textContent = p2017 ? ptDiffText(cur, p2017.y) : '比較不可';
-    $('cmpPrev').textContent = pPrev ? fmtPct(pPrev.y) : '--';
-    $('cmpPrevSub').textContent = pPrev ? ptDiffText(cur, pPrev.y) : '比較不可';
 
-    const maxDays = state.range === 'all' ? Math.max(segmentLengthDays(seg2017), segmentLengthDays(segPrev), segmentLengthDays(segCurrent)) : Number(state.range);
-    const len2017 = segmentLengthDays(seg2017);
-    const lenPrev = segmentLengthDays(segPrev);
-    const avgLen = Math.round((len2017 + lenPrev) / 2);
-    const remain = avgLen - day;
-    const shallow2017 = p2017 ? cur - p2017.y : NaN;
-    const shallowPrev = pPrev ? cur - pPrev.y : NaN;
-    let position = '過去比較は参考値。';
-    if (Number.isFinite(shallow2017) && Number.isFinite(shallowPrev)) {
-      if (shallow2017 > 10 && shallowPrev > 10) position = '現在の下落率は、過去2サイクルの同日数より明確に浅い。';
-      else if (shallow2017 < -10 && shallowPrev < -10) position = '現在の下落率は、過去2サイクルの同日数より深い。';
-      else position = '現在の下落率は、過去2サイクルの同日数と大きくは離れていない。';
+    if (state.mode === 'athBottom') {
+      setBox(1, '現在 暫定底', `${cCur.bottomDays.toLocaleString('ja-JP')}日`, fmtPct(cCur.bottomDd));
+      setBox(2, '2017型 底値', `${c2017.bottomDays.toLocaleString('ja-JP')}日`, fmtPct(c2017.bottomDd));
+      setBox(3, '前回型 底値', `${cPrev.bottomDays.toLocaleString('ja-JP')}日`, fmtPct(cPrev.bottomDd));
+      const avgBottom = Math.round((c2017.bottomDays + cPrev.bottomDays) / 2);
+      const dayDiff = cCur.bottomDays - avgBottom;
+      const dayText = dayDiff >= 0 ? `過去平均より${dayDiff.toLocaleString('ja-JP')}日遅い` : `過去平均より${Math.abs(dayDiff).toLocaleString('ja-JP')}日早い`;
+      $('cycleCompareText').textContent = `過去2サイクルのATH→底値平均は約${avgBottom.toLocaleString('ja-JP')}日。現在の暫定底は${dayText}。現在サイクルの底値はまだ確定ではない。`;
+      $('cycleCompareTable').innerHTML = `<thead><tr><th>サイクル</th><th>ATH→底値</th><th>最大下落</th><th>底値日</th><th>期間</th></tr></thead><tbody>${a.cycles.map(cycleRow).join('')}</tbody>`;
+      return;
     }
-    const remainText = remain > 0 ? `過去2サイクルの次ATHまでの平均日数までは、単純比較であと約${remain.toLocaleString('ja-JP')}日。` : `過去2サイクルの次ATHまでの平均日数はすでに超過。`;
-    $('cycleCompareText').textContent = `${position} ${remainText} これは売買判断ではなく、サイクル上の位置確認。`;
 
-    const rows = [
-      { name:'2017型', same:p2017 ? fmtPct(p2017.y) : '--', min:fmtPct(minDrawdown(seg2017, maxDays)), length:Number.isFinite(len2017) ? len2017.toLocaleString('ja-JP') + '日' : '--' },
-      { name:'前回型', same:pPrev ? fmtPct(pPrev.y) : '--', min:fmtPct(minDrawdown(segPrev, maxDays)), length:Number.isFinite(lenPrev) ? lenPrev.toLocaleString('ja-JP') + '日' : '--' },
-      { name:'現在', same:fmtPct(cur), min:fmtPct(minDrawdown(segCurrent, maxDays)), length:day.toLocaleString('ja-JP') + '日' }
-    ];
-    $('cycleCompareTable').innerHTML = `
-      <thead><tr><th>サイクル</th><th>同日数</th><th>${state.range === 'all' ? '全期間最深' : state.range + '日内最深'}</th><th>次ATH/現在まで</th></tr></thead>
-      <tbody>${rows.map(r => `<tr><td>${r.name}</td><td>${r.same}</td><td>${r.min}</td><td>${r.length}</td></tr>`).join('')}</tbody>
-    `;
-    card.className = 'compareCard show';
+    if (state.mode === 'bottomAround') {
+      const w = Number(state.bottomRange);
+      setBox(1, '表示期間', `±${w.toLocaleString('ja-JP')}日`, '底値日を0日');
+      setBox(2, '現在 暫定底', `${cCur.bottomDays.toLocaleString('ja-JP')}日`, fmtPct(cCur.bottomDd));
+      setBox(3, '過去底値平均', `${Math.round((c2017.bottomDays + cPrev.bottomDays) / 2).toLocaleString('ja-JP')}日`, `${fmtPct((c2017.bottomDd + cPrev.bottomDd) / 2)}`);
+      $('cycleCompareText').textContent = '底値日を0日として、底値前後の形を比較。現在サイクルは暫定底のため、今後さらに安値を更新すれば0日の位置は変わる。';
+      $('cycleCompareTable').innerHTML = `<thead><tr><th>サイクル</th><th>ATH→底値</th><th>最大下落</th><th>底値日</th><th>期間</th></tr></thead><tbody>${a.cycles.map(cycleRow).join('')}</tbody>`;
+      return;
+    }
+
+    setBox(1, '現在', `${cycleLengthDays(cCur).toLocaleString('ja-JP')}日`, fmtPct(a.currentDrawdown));
+    setBox(2, '2017型 次ATH', `${cycleLengthDays(c2017).toLocaleString('ja-JP')}日`, `底値 ${c2017.bottomDays.toLocaleString('ja-JP')}日`);
+    setBox(3, '前回型 次ATH', `${cycleLengthDays(cPrev).toLocaleString('ja-JP')}日`, `底値 ${cPrev.bottomDays.toLocaleString('ja-JP')}日`);
+    const avgLen = Math.round((cycleLengthDays(c2017) + cycleLengthDays(cPrev)) / 2);
+    const remain = avgLen - a.currentDays;
+    const remainText = remain > 0 ? `過去2サイクルの次ATHまでの平均日数までは、単純比較であと約${remain.toLocaleString('ja-JP')}日。` : '過去2サイクルの次ATHまでの平均日数はすでに超過。';
+    $('cycleCompareText').textContent = `${remainText} ATH→次ATHは予測ではなく、過去サイクルの時間軸確認。`;
+    $('cycleCompareTable').innerHTML = `<thead><tr><th>サイクル</th><th>ATH→底値</th><th>最大下落</th><th>底値日</th><th>期間</th></tr></thead><tbody>${a.cycles.map(cycleRow).join('')}</tbody>`;
   }
 
   function renderSummary() {
@@ -692,34 +711,64 @@
     $('latestDate').textContent = fmtDate(a.latest.t) + ' / 日足終値';
     $('athDays').textContent = a.currentDays.toLocaleString('ja-JP') + '日';
     $('currentDd').textContent = fmtPct(a.currentDrawdown);
+    $('bottomDays').textContent = a.current.bottomDays.toLocaleString('ja-JP') + '日';
     const met = a.latest.close <= SIXTY_K;
     $('sixtyCondition').textContent = met ? '達成' : '未達';
     $('sixtyCondition').className = 'metricValue ' + (met ? 'green' : '');
     $('conditionPill').textContent = met ? '条件到達' : '監視';
     $('conditionPill').className = 'pill ' + (met ? 'ready' : 'watch');
-    $('positionLine').textContent = `現在ATHは ${fmtDate(a.currentPeak.t)} / ${fmtUsd(a.currentPeak.close)}。60,000ドル条件は${met ? '到達。月足と資金量を確認。' : '未達。まだ監視。'}`;
+    $('positionLine').textContent = `現在ATHは ${fmtDate(a.currentPeak.t)} / ${fmtUsd(a.currentPeak.close)}。暫定底は ATH後${a.current.bottomDays.toLocaleString('ja-JP')}日 / ${fmtPct(a.current.bottomDd)}。`;
     const saved = state.savedAt ? new Date(state.savedAt).toLocaleString('ja-JP') : '';
     setTopStatus(saved ? `保存<br>${saved}` : `最新<br>${fmtDate(a.latest.t)}`);
   }
 
+  function renderRangeTabs() {
+    const el = $('rangeTabs');
+    if (state.mode === 'athNext') {
+      el.className = 'range show';
+      const opts = [
+        ['500', '500日'],
+        ['1000', '1000日'],
+        ['1500', '1500日'],
+        ['all', '全期間']
+      ];
+      el.innerHTML = opts.map(([v, label]) => `<button data-type="ath" data-value="${v}" class="${state.range === v ? 'active' : ''}">${label}</button>`).join('');
+      return;
+    }
+    if (state.mode === 'bottomAround') {
+      el.className = 'range show three';
+      const opts = [
+        ['180', '±180日'],
+        ['365', '±365日'],
+        ['540', '±540日']
+      ];
+      el.innerHTML = opts.map(([v, label]) => `<button data-type="bottom" data-value="${v}" class="${state.bottomRange === v ? 'active' : ''}">${label}</button>`).join('');
+      return;
+    }
+    el.className = 'range';
+    el.innerHTML = '';
+  }
+
   function renderTabs() {
     document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === state.mode));
-    $('rangeTabs').classList.toggle('show', state.mode === 'cycle');
-    document.querySelectorAll('#rangeTabs button').forEach(btn => btn.classList.toggle('active', btn.dataset.range === state.range));
+    renderRangeTabs();
   }
 
   function renderLegend() {
     const segments = getSegments();
-    $('legend').innerHTML = segments.map(s => `<span class="leg"><span class="dot" style="background:${s.color}"></span>${s.label}</span>`).join('');
+    $('legend').innerHTML = segments.map(s => `<span class="leg"><span class="dot" style="background:${s.color}"></span>${s.label}${s.tentative ? '（暫定）' : ''}</span>`).join('');
   }
 
   function renderNote() {
-    if (state.mode === 'cycle') {
-      const r = state.range === 'all' ? '全期間' : state.range + '日';
-      $('chartNote').textContent = `ATH比較：開始ATHを0%として表示。表示期間は${r}。`;
+    if (state.mode === 'athCurrent') {
+      $('chartNote').textContent = `ATH→現在：現在サイクルの経過日数 ${state.analysis.currentDays.toLocaleString('ja-JP')}日までで比較。`;
+    } else if (state.mode === 'athBottom') {
+      $('chartNote').textContent = 'ATH→底値：ATHを0%として、各サイクルの底値までを比較。現在は暫定底。';
+    } else if (state.mode === 'bottomAround') {
+      $('chartNote').textContent = `底値前後：底値日を0日として、前後±${Number(state.bottomRange).toLocaleString('ja-JP')}日をATH比で比較。`;
     } else {
-      const label = state.mode === 'daily' ? '日足' : state.mode === 'weekly' ? '週足' : state.mode === 'monthly' ? '月足' : '年足';
-      $('chartNote').textContent = `${label}：終値ベース。長期確認のため価格軸は対数表示。`;
+      const r = state.range === 'all' ? '全期間' : state.range + '日';
+      $('chartNote').textContent = `ATH→次ATH：開始ATHを0%として表示。表示期間は${r}。現在サイクルは現在まで。`;
     }
   }
 
@@ -727,9 +776,10 @@
     if (!state.analysis) return;
     $('dataDetail').innerHTML = `
       ・価格はBinance BTCUSDTの日足終値。<br>
-      ・現在ATH：${fmtDate(state.analysis.currentPeak.t)} / ${fmtUsd(state.analysis.currentPeak.close)}。<br>
-      ・週足、月足、年足は日足終値から各期間の最終終値を抽出。ローソク足ではない。<br>
-      ・ATH比較は、開始ATHを0%として次ATHまたは現在までを表示。<br>
+      ・2017型：${fmtDate(state.analysis.cycles[0].ath.t)} ATH → ${fmtDate(state.analysis.cycles[0].end.t)} 次ATH。<br>
+      ・前回型：${fmtDate(state.analysis.cycles[1].ath.t)} ATH → ${fmtDate(state.analysis.cycles[1].end.t)} 現在ATH。<br>
+      ・現在：${fmtDate(state.analysis.currentPeak.t)} ATH → ${fmtDate(state.analysis.latest.t)} 現在。<br>
+      ・現在サイクルの底値は未確定のため「暫定底」と表示。<br>
       ・これは位置確認用。売買判断ではない。
     `;
   }
@@ -746,7 +796,7 @@
     renderLegend();
     renderNote();
     renderDetail();
-    renderCycleCompare();
+    renderCompare();
     drawChart();
   }
 
@@ -780,12 +830,18 @@
         renderAll();
       });
     });
-    document.querySelectorAll('#rangeTabs button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        state.range = btn.dataset.range;
+    $('rangeTabs').addEventListener('click', (event) => {
+      const btn = event.target.closest('button');
+      if (!btn) return;
+      if (btn.dataset.type === 'ath') {
+        state.range = btn.dataset.value;
         localStorage.setItem(RANGE_KEY, state.range);
-        renderAll();
-      });
+      }
+      if (btn.dataset.type === 'bottom') {
+        state.bottomRange = btn.dataset.value;
+        localStorage.setItem(BOTTOM_RANGE_KEY, state.bottomRange);
+      }
+      renderAll();
     });
     window.addEventListener('resize', () => drawChart());
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
