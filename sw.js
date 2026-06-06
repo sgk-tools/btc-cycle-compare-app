@@ -1,4 +1,4 @@
-const CACHE_NAME = 'btc-cycle-compare-v2-2-cycle';
+const CACHE_NAME = 'btc-cycle-compare-v2-3-loading';
 const ASSETS = [
   './',
   './index.html',

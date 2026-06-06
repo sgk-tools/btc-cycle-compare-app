@@ -51,7 +51,9 @@
     .bar{display:flex;gap:8px;align-items:center;margin:12px 0;}
     button{appearance:none;border:1px solid var(--line);background:#111722;color:var(--text);border-radius:999px;min-height:42px;padding:9px 14px;font-size:13px;font-weight:850;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
     button:active{transform:translateY(1px)}
+    button:disabled{opacity:.52;cursor:not-allowed;transform:none;}
     .update{margin-left:auto;background:#f5f7fb;color:#05070b;border-color:#f5f7fb;}
+    .update.loading{background:#2a3342;color:#cbd5e1;border-color:#39465a;}
     .msg{display:none;border:1px solid var(--line);border-radius:14px;background:#0e131b;color:var(--muted);font-size:12px;line-height:1.5;padding:10px 12px;margin:8px 0 12px;white-space:pre-wrap;}
     .msg.show{display:block}
     .chartCard{background:linear-gradient(180deg,#111722,#0a0e14);border:1px solid var(--line);border-radius:24px;padding:12px;box-shadow:var(--shadow);}
@@ -195,15 +197,15 @@
       </div>
     </details>
 
-    <div class="footer">v2.2 cycle / APIキー不要 / GitHub Pages対応</div>
+    <div class="footer">v2.3 loading / APIキー不要 / GitHub Pages対応</div>
   </div>
 
 <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '2.2-cycle';
-  const STORAGE_KEY = 'btc_cycle_compare_v2_2_data';
+  const APP_VERSION = '2.3-loading';
+  const STORAGE_KEY = 'btc_cycle_compare_v2_3_data';
   const MODE_KEY = 'btc_cycle_compare_v2_2_mode';
   const RANGE_KEY = 'btc_cycle_compare_v2_2_range';
   const BOTTOM_RANGE_KEY = 'btc_cycle_compare_v2_2_bottom_range';
@@ -232,7 +234,8 @@
     mode: localStorage.getItem(MODE_KEY) || 'athCurrent',
     range: localStorage.getItem(RANGE_KEY) || '1500',
     bottomRange: localStorage.getItem(BOTTOM_RANGE_KEY) || '365',
-    analysis: null
+    analysis: null,
+    isFetching: false
   };
 
   function fmtUsd(v) {
@@ -341,6 +344,7 @@
   function loadSavedData() {
     const keys = [
       STORAGE_KEY,
+      'btc_cycle_compare_v2_2_data',
       'btc_position_v2_1_data',
       'btc_position_v2_0_data',
       'btc_cycle_anomaly_v1_9_data',
@@ -800,11 +804,19 @@
     drawChart();
   }
 
+  function setFetchButtonLoading(isLoading) {
+    const btn = $('fetchBtn');
+    state.isFetching = isLoading;
+    btn.disabled = isLoading;
+    btn.textContent = isLoading ? '取得中' : '更新';
+    btn.classList.toggle('loading', isLoading);
+  }
+
   async function handleFetch(silent = false) {
+    if (state.isFetching) return;
     try {
-      if (!silent) setMessage('');
-      $('fetchBtn').disabled = true;
-      $('fetchBtn').textContent = '更新中';
+      if (!silent) setMessage('取得中。完了まで続けて押さない。');
+      setFetchButtonLoading(true);
       const data = await fetchAllData();
       state.candles = data.candles;
       state.source = data.source;
@@ -816,8 +828,7 @@
       if (!silent) setMessage('更新失敗。保存データがあれば表示を継続。\n' + err.message);
       setTopStatus('更新失敗');
     } finally {
-      $('fetchBtn').disabled = false;
-      $('fetchBtn').textContent = '更新';
+      setFetchButtonLoading(false);
     }
   }
 
