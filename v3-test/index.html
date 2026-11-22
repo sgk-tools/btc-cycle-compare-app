@@ -48,6 +48,19 @@
     .metricValue.red{color:var(--red)}
     .metricValue.green{color:var(--green)}
     .oneLine{margin-top:14px;color:#d8dee8;font-size:13px;line-height:1.5;}
+    .intradayHero{margin-top:11px;background:#0b111a;border:1px solid #354053;border-radius:16px;padding:12px 13px;}
+    .intradayTitle{font-size:12px;color:#b7c9df;font-weight:850;margin-bottom:8px;}
+    .intradayRow{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 16px;}
+    .intradayValue{font-size:23px;font-weight:900;letter-spacing:-.025em;}
+    .intradayMeta{font-size:12px;color:#d8dee8;line-height:1.55;}
+    .intradayMeta strong{color:var(--red);}
+    .intradayNote{font-size:11px;color:var(--muted);line-height:1.55;margin-top:6px;}
+    .lowStats{margin-top:12px;border-top:1px solid var(--line);padding-top:11px;}
+    .lowStatsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px;}
+    .lowStatsItem{border:1px solid var(--line);border-radius:14px;background:#090d13;padding:10px;min-width:0;}
+    .lowStatsItem strong{display:block;font-size:17px;margin:6px 0;color:var(--red);}
+    .lowStatsItem small{display:block;font-size:10px;color:var(--muted);line-height:1.55;}
+
     .bar{display:flex;gap:8px;align-items:center;margin:12px 0;}
     button{appearance:none;border:1px solid var(--line);background:#111722;color:var(--text);border-radius:999px;min-height:42px;padding:9px 14px;font-size:13px;font-weight:850;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
     button:active{transform:translateY(1px)}
@@ -127,6 +140,8 @@
       .statsGrid{grid-template-columns:repeat(2,1fr);gap:6px;}
       .statCycle:last-child:nth-child(odd){grid-column:1 / -1;}
       .statMain{font-size:17px;}
+      .lowStatsGrid{grid-template-columns:1fr;}
+      .intradayValue{font-size:21px;}
     }
   </style>
 </head>
@@ -156,15 +171,24 @@
           <div class="metricValue red" id="currentDd">--</div>
         </div>
         <div class="metric">
-          <div class="metricLabel">ATH→暫定底</div>
+          <div class="metricLabel">ATH→暫定底（終値）</div>
           <div class="metricValue" id="bottomDays">--</div>
         </div>
         <div class="metric">
-          <div class="metricLabel">60,000条件</div>
+          <div class="metricLabel">60,000条件（直近価格）</div>
           <div class="metricValue" id="sixtyCondition">--</div>
         </div>
       </div>
       <div class="oneLine" id="positionLine">データ未取得。更新する。</div>
+      <div class="intradayHero" aria-live="polite">
+        <div class="intradayTitle">現在サイクルの日中最安値（Low・暫定）</div>
+        <div class="intradayRow">
+          <div class="intradayValue" id="intradayLowPrice">--</div>
+          <div class="intradayMeta">ATH終値比 <strong id="intradayLowDd">--</strong> ／ ATH後 <span id="intradayLowDays">--</span></div>
+        </div>
+        <div class="intradayNote" id="intradayLowDate">2017年以降のBinance BTCUSDT日足安値を使用。未取得なら「更新」。</div>
+        <div class="intradayNote" id="intradaySixty">60,000ドル一時到達（現在サイクル）：--</div>
+      </div>
       <div class="note" style="margin-top:10px;color:#8d99aa">全期間対応：市場価格データ開始（2010年7月）から現在まで。Bitcoinネットワーク開始は2009年だが、比較には市場価格がある期間を使用。</div>
     </section>
 
@@ -191,10 +215,15 @@
     </section>
 
     <section class="statsCard" id="cycleStatsCard">
-      <div class="sectionTitle">底値統計（全主要サイクル）</div>
+      <div class="sectionTitle">底値統計（終値ベース・全主要サイクル）</div>
       <div class="statsGrid" id="cycleStatsGrid"></div>
       <div class="statAverage" id="cycleStatsAverage">データ未取得。</div>
-      <div class="note">最大下落率とATH→底までの日数を同時に確認する欄。現在サイクルは底値未確定のため暫定値。</div>
+      <div class="note">この欄と比較チャートは従来どおり日足終値で計算。現在サイクルの底値は未確定のため暫定値。</div>
+      <div class="lowStats">
+        <div class="sectionTitle">日中最安値（Low・2017年以降のみ）</div>
+        <div class="lowStatsGrid" id="intradayLowStatsGrid"></div>
+        <div class="note">Binance BTCUSDTの日足安値。下落率の分母は各サイクルのATH日足終値。2011年・2013年は同一条件の安値データがないため表示しない。</div>
+      </div>
     </section>
 
     <section class="compareCard" id="cycleCompareCard">
@@ -230,15 +259,15 @@
       </div>
     </details>
 
-    <div class="footer">v3.3 bottom-stats + range-zoom + cycle ON/OFF / APIキー不要 / GitHub Pages対応</div>
+    <div class="footer">v3.4 intraday-low + v3.3 bottom-stats / APIキー不要 / GitHub Pages対応</div>
   </div>
 
 <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '3.3-bottom-stats';
-  const STORAGE_KEY = 'btc_cycle_compare_v3_3_data';
+  const APP_VERSION = '3.4-intraday-low';
+  const STORAGE_KEY = 'btc_cycle_compare_v3_4_data';
   const MODE_KEY = 'btc_cycle_compare_v3_3_mode';
   const SHORT_RANGE_KEY = 'btc_cycle_compare_v3_3_short_range';
   const NEXT_RANGE_KEY = 'btc_cycle_compare_v3_3_next_range';
@@ -367,7 +396,13 @@
       for (const row of rows) {
         const t = Number(row[0]);
         const close = Number(row[4]);
-        if (Number.isFinite(t) && Number.isFinite(close)) out.push({ t, close });
+        const low = Number(row[3]);
+        // 当日の未確定足も取得する。終値と日中安値の確定状態を区別する。
+        if (Number.isFinite(t) && Number.isFinite(close) && close > 0) {
+          const candle = { t, close, complete: t + DAY_MS <= end };
+          if (Number.isFinite(low) && low > 0 && low <= close) candle.low = low;
+          out.push(candle);
+        }
       }
       const lastOpen = Number(rows[rows.length - 1][0]);
       const next = lastOpen + DAY_MS;
@@ -454,6 +489,7 @@
   function loadSavedData() {
     const keys = [
       STORAGE_KEY,
+      'btc_cycle_compare_v3_3_data',
       'btc_cycle_compare_v3_0_data',
       'btc_cycle_compare_v2_3_data',
       'btc_cycle_compare_v2_2_data',
@@ -476,7 +512,13 @@
     if (!raw) throw new Error('保存データなし');
     const data = JSON.parse(raw);
     if (!data || !Array.isArray(data.candles) || !data.candles.length) throw new Error('保存データ不正');
-    state.candles = data.candles.map(c => ({ t: Number(c.t), close: Number(c.close) })).filter(c => Number.isFinite(c.t) && Number.isFinite(c.close));
+    state.candles = data.candles.map(c => {
+      const candle = { t: Number(c.t), close: Number(c.close) };
+      const low = Number(c.low);
+      if (Number.isFinite(low) && low > 0 && low <= candle.close) candle.low = low;
+      if (typeof c.complete === 'boolean') candle.complete = c.complete;
+      return candle;
+    }).filter(c => Number.isFinite(c.t) && Number.isFinite(c.close) && c.close > 0);
     state.source = data.source || '保存データ';
     state.savedAt = data.savedAt || '';
   }
@@ -497,6 +539,11 @@
     return range.reduce((min, c) => c.close < min.close ? c : min, range[0]);
   }
 
+  function findLowBetween(candles, startMs, endMs) {
+    const range = sliceRange(candles, startMs, endMs).filter(c => Number.isFinite(c.low) && c.low > 0);
+    return range.length ? range.reduce((min, c) => c.low < min.low ? c : min, range[0]) : null;
+  }
+
   function drawdownFromAth(cycle, candle) {
     if (!cycle || !cycle.ath || !candle) return NaN;
     return (candle.close / cycle.ath.close - 1) * 100;
@@ -508,7 +555,12 @@
     if (!bottom) return null;
     const bottomDays = daysBetween(ath.t, bottom.t);
     const bottomDd = drawdownFromAth({ ath }, bottom);
-    return { key, label, color, ath, end, bottom, bottomDays, bottomDd, tentative: !!tentative };
+    // 日足終値ベースの既存統計を維持し、日中安値は別系統で保存。
+    const intradayBottom = findLowBetween(candles, ath.t, end.t);
+    const intradayBottomDays = intradayBottom ? daysBetween(ath.t, intradayBottom.t) : null;
+    const intradayBottomDd = intradayBottom ? (intradayBottom.low / ath.close - 1) * 100 : NaN;
+    return { key, label, color, ath, end, bottom, bottomDays, bottomDd,
+      intradayBottom, intradayBottomDays, intradayBottomDd, tentative: !!tentative };
   }
 
   function analyze(candles) {
@@ -816,6 +868,15 @@
     } else {
       $('cycleStatsAverage').textContent = '過去サイクル平均を計算できない。';
     }
+
+    const withLow = cycles.filter(c => c.intradayBottom);
+    $('intradayLowStatsGrid').innerHTML = withLow.length ? withLow.map(c => `
+      <div class="lowStatsItem">
+        <div class="statCycleName"><span class="dot" style="background:${c.color}"></span>${c.label}${c.tentative ? '（暫定）' : ''}</div>
+        <strong>${fmtPct(c.intradayBottomDd)}</strong>
+        <small>日中最安 ${fmtUsd(c.intradayBottom.low)}</small>
+        <small>ATH後 ${c.intradayBottomDays.toLocaleString('ja-JP')}日 ／ ${fmtDate(c.intradayBottom.t)}</small>
+      </div>`).join('') : '<div class="note">日中安値データが未取得。更新を押す。</div>';
   }
 
   function renderCompare() {
@@ -872,7 +933,8 @@
     const a = state.analysis;
     if (!a) return;
     $('latestPrice').textContent = fmtUsd(a.latest.close);
-    $('latestDate').textContent = fmtDate(a.latest.t) + ' / 日足終値';
+    const currentCandleIncomplete = a.latest.complete === false || a.latest.t + DAY_MS > Date.now();
+    $('latestDate').textContent = fmtDate(a.latest.t) + (currentCandleIncomplete ? ' / UTC日足途中（暫定価格）' : ' / UTC日足終値');
     $('athDays').textContent = a.currentDays.toLocaleString('ja-JP') + '日';
     $('currentDd').textContent = fmtPct(a.currentDrawdown);
     $('bottomDays').textContent = a.current.bottomDays.toLocaleString('ja-JP') + '日';
@@ -881,7 +943,17 @@
     $('sixtyCondition').className = 'metricValue ' + (met ? 'green' : '');
     $('conditionPill').textContent = met ? '条件到達' : '監視';
     $('conditionPill').className = 'pill ' + (met ? 'ready' : 'watch');
-    $('positionLine').textContent = `現在ATHは ${fmtDate(a.currentPeak.t)} / ${fmtUsd(a.currentPeak.close)}。暫定底は ATH後${a.current.bottomDays.toLocaleString('ja-JP')}日 / ${fmtPct(a.current.bottomDd)}。`;
+    $('positionLine').textContent = `現在ATH（日足終値）は ${fmtDate(a.currentPeak.t)} / ${fmtUsd(a.currentPeak.close)}。終値ベース暫定底は ATH後${a.current.bottomDays.toLocaleString('ja-JP')}日 / ${fmtPct(a.current.bottomDd)}。`;
+    const low = a.current.intradayBottom;
+    $('intradayLowPrice').textContent = low ? fmtUsd(low.low) : '--';
+    $('intradayLowDd').textContent = low ? fmtPct(a.current.intradayBottomDd) : '--';
+    $('intradayLowDays').textContent = low ? a.current.intradayBottomDays.toLocaleString('ja-JP') + '日' : '--';
+    $('intradayLowDate').textContent = low
+      ? `${fmtDate(low.t)}（UTC）の最安値。Binance BTCUSDT日足Low。${low.complete === false || low.t + DAY_MS > Date.now() ? '当日足は未確定。' : '確定した日足。'}`
+      : '日中安値データが未取得。更新を押す（保存済みv3.3データは終値のみ）。';
+    $('intradaySixty').textContent = low
+      ? `60,000ドル一時到達（現在サイクル）：${low.low <= SIXTY_K ? 'あり' : 'なし'}。上の条件表示は直近価格で判定。`
+      : '60,000ドル一時到達（現在サイクル）：安値データ未取得。';
     const saved = state.savedAt ? new Date(state.savedAt).toLocaleString('ja-JP') : '';
     setTopStatus(saved ? `保存<br>${saved}` : `最新<br>${fmtDate(a.latest.t)}`);
   }
@@ -968,13 +1040,17 @@
     $('dataDetail').innerHTML = `
       ・対象期間：${fmtDate(state.candles[0].t)}〜${fmtDate(a.latest.t)}。<br>
       ・2010-07〜2017-08-16：CoinGecko由来の日次BTC/USD履歴（GitHub公開ミラー）。<br>
-      ・2017-08-17以降：Binance BTCUSDT日足。<br>
+      ・2017-08-17以降：Binance BTCUSDT日足（終値Close・日中安値Low）。<br>
+      ・グラフ・旧統計は終値基準のまま。安値基準の統計は別に表示し、各ATH日足終値から下落率を計算する。<br>
+      ・2017年以前は終値データのみのため、日中安値の比較には含めない。<br>
+      ・最新日が進行中なら「UTC日足途中（暫定価格）」と表示する。<br>
+      ・60,000ドル条件は直近価格、日中安値が一時的に到達したかは別表示する。<br>
       ・主要サイクル：2011、2013、2017、2021、現在。<br>
       ・サイクル定義：「主要ATH → 次の主要ATH」で統一。2013年4月の中間ピークは独立サイクルにせず、2011→2013サイクル内に含める。<br>
       ・短期比較：100日 / 200日 / 365日 / 500日。ATH→次ATHのみ1000日 / 1500日 / 全期間も使用可能。<br>
       ・主要ATHは各ピーク周辺の固定期間内で日足終値の最大値を採用。<br>
       ・凡例ボタンで各サイクル線をON/OFF可能。表は全サイクルを残す。<br>
-      ・底値統計欄で各サイクルの最大下落率とATH→底までの日数を常時比較。<br>
+      ・底値統計欄で各サイクルの終値ベース最大下落率とATH→底までの日数を常時比較。<br>
       ・異なるデータソースを接続するため、2017年8月付近は価格定義に小さな差があり得る。<br>
       ・現在サイクルの底値は未確定のため「暫定底」と表示。<br>
       ・これは位置確認用。売買判断ではない。
