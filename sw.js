@@ -1,4 +1,4 @@
-const CACHE_NAME = 'btc-cycle-compare-v2-3-loading';
+const CACHE_NAME = 'btc-cycle-compare-v3-6-purchase-ledger';
 const ASSETS = [
   './',
   './index.html',
@@ -15,7 +15,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(keys => Promise.all(keys.filter(key => key.startsWith('btc-cycle-compare-v3-') && key !== CACHE_NAME).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });

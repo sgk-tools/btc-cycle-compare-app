@@ -1,7 +1,7 @@
 {
   "name": "BTCサイクル比較",
   "short_name": "BTC比較",
-  "description": "BTCの過去サイクルと現在サイクルをATH、底値、底値前後で比較するアプリ",
+  "description": "2010年7月以降のBTC主要サイクルを「主要ATH→次の主要ATH」で統一して比較するアプリ",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#05070b",
