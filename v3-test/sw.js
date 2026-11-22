@@ -1,4 +1,4 @@
-const CACHE_NAME = 'btc-cycle-compare-v3-4-intraday-low';
+const CACHE_NAME = 'btc-cycle-compare-v3-6-purchase-ledger';
 const ASSETS = [
   './',
   './index.html',
