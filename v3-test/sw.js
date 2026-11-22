@@ -1,4 +1,4 @@
-const CACHE_NAME = 'btc-cycle-compare-v3-6-purchase-ledger';
+const CACHE_NAME = 'btc-cycle-compare-v3-7-compact-ledger';
 const ASSETS = [
   './',
   './index.html',

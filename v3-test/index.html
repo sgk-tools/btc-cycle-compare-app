@@ -196,6 +196,40 @@
       .buyTable td:last-child{grid-column:1/-1;flex-direction:row;justify-content:flex-end;align-items:center;gap:8px;}
       .buyTable td:last-child::before{display:none;}
     }
+
+    /* v3.7: prominent aggregate unrealized P&L and compact per-purchase disclosure. */
+    .buyTotalMetric{grid-column:1/-1;border-color:#44536b;background:linear-gradient(130deg,#152232,#0c131f);padding:16px 15px;}
+    .buyTotalMetric .buyMetricLabel{font-size:12px;color:#d4dfed;}
+    .buyTotalLine{display:flex;align-items:baseline;gap:15px;flex-wrap:wrap;}
+    .buyTotalNumber{font-size:clamp(26px,4vw,36px);line-height:1.2;}
+    .buyTotalRate{font-size:15px;font-weight:850;color:#e4edf9;}
+    .buyTotalMetric .buyMetricAux{margin-top:9px;}
+    .buyTradeList{display:grid;gap:8px;margin-top:12px;}
+    .buyPanel details.buyTrade{background:#0b131f;border:1px solid #304052;border-radius:13px;padding:0;margin:0;overflow:hidden;}
+    .buyPanel details.buyTrade[open]{border-color:#59728f;}
+    .buyPanel .buyTradeSummary{list-style:none;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 13px;min-height:61px;cursor:pointer;touch-action:manipulation;}
+    .buyPanel .buyTradeSummary::-webkit-details-marker{display:none;}
+    .buyTradeSummary:focus-visible{outline:2px solid #87bfff;outline-offset:-3px;}
+    .buyTradeLead{display:flex;flex-direction:column;gap:5px;min-width:0;}
+    .buyTradeDate{font-size:13px;color:#e9f1fa;font-weight:800;}
+    .buyTradeCost{font-size:11px;color:#a9bad0;}
+    .buyTradeEnd{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+    .buyTradeQty{font-size:13px;font-weight:850;color:#ecf4ff;white-space:nowrap;}
+    .buyTradeChevron{display:inline-block;font-size:16px;color:#91a7bf;transition:transform .15s;}
+    .buyTrade[open] .buyTradeChevron{transform:rotate(180deg);}
+    .buyTradeBody{border-top:1px solid #304052;padding:10px 13px 13px;}
+    .buyTradeInfo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 12px;margin:3px 0 12px;}
+    .buyTradeInfo div{min-width:0;}
+    .buyTradeInfo dt{font-size:10px;color:#9baec4;margin-bottom:5px;}
+    .buyTradeInfo dd{font-size:13px;color:#e1ecf9;margin:0;overflow-wrap:anywhere;}
+    .buyTradeActions{display:flex;justify-content:flex-end;gap:8px;}
+    .buyTradeActions .buySmall{min-height:38px;min-width:58px;font-size:12px;margin:0;}
+    @media(max-width:560px){
+      .buyTotalMetric{padding:14px 12px;}
+      .buyTotalNumber{font-size:28px;}
+      .buyTradeSummary{padding:12px 10px;}
+      .buyTradeQty{font-size:12px;}
+    }
   </style>
 </head>
 <body>
@@ -254,8 +288,12 @@
     <section class="buyPanel" id="buyPanel" aria-label="BTC購入履歴と評価損益">
       <div class="buyHeader"><div class="buyTitle">保有BTCの購入履歴・評価損益</div><span class="buyBadge" id="buyCount">0件</span></div>
       <div class="buyMetrics" aria-live="polite">
+        <div class="buyMetric buyTotalMetric" aria-label="登録購入履歴の合計評価損益">
+          <div class="buyMetricLabel">全購入履歴の合計損益（円・未実現）</div>
+          <div class="buyTotalLine"><div class="buyMainNumber buyTotalNumber" id="buyPnlJPY">—</div><div class="buyTotalRate" id="buyPnlJPYpct">—</div></div>
+          <div class="buyMetricAux" id="buyTotalInfo">購入履歴の登録後、現在の円価格を取得すると表示する。</div>
+        </div>
         <div class="buyMetric"><div class="buyMetricLabel">登録BTC数量</div><div class="buyMainNumber" id="buyQty">— BTC</div><div class="buyMetricAux">未売却の購入数量を入力</div></div>
-        <div class="buyMetric"><div class="buyMetricLabel">円の評価損益</div><div class="buyMainNumber" id="buyPnlJPY">—</div><div class="buyMetricAux" id="buyPnlJPYpct">—</div></div>
         <div class="buyMetric"><div class="buyMetricLabel">ドルの評価損益</div><div class="buyMainNumber" id="buyPnlUSD">—</div><div class="buyMetricAux" id="buyPnlUSDpct">—</div></div>
         <div class="buyMetric"><div class="buyMetricLabel">取得総額（円）</div><div class="buyMainNumber" id="buyCostJPY">—</div><div class="buyMetricAux">入力した手数料を加算</div></div>
         <div class="buyMetric"><div class="buyMetricLabel">現在評価額（円）</div><div class="buyMainNumber" id="buyValueJPY">—</div><div class="buyMetricAux">現在BTC/JPY × 数量</div></div>
@@ -286,8 +324,9 @@
           </div><div class="buyButtons"><button id="buySave" type="submit" class="primary">1件を追加</button><button id="buyCancelEdit" type="button" hidden>編集をキャンセル</button></div></form>
         </div>
       </details>
-      <details id="buyHistoryDetails"><summary>登録済み購入履歴（編集・削除・バックアップ）</summary>
-        <div class="buyTableWrap"><table class="buyTable"><thead><tr><th>購入日</th><th>円/BTC</th><th>ドル/BTC</th><th>数量</th><th>手数料（円）</th><th>操作</th></tr></thead><tbody id="buyRows"></tbody></table></div>
+      <details id="buyHistoryDetails"><summary>登録済み購入履歴（<span id="buyHistoryCount">0件</span>・1件ずつ展開）</summary>
+        <div class="buyHint">購入日・数量・購入金額だけを一覧表示。各行をタップすると単価や手数料、編集・削除を開ける。</div>
+        <div class="buyTradeList" id="buyRows"></div>
         <div class="buyHint" id="buyEmpty">履歴はまだ登録されていない。</div>
         <div class="buyButtons"><button id="buyCsv" type="button">CSVバックアップを保存</button><button id="buyClear" type="button">登録履歴を全削除</button></div>
       </details>
@@ -356,14 +395,14 @@
       </div>
     </details>
 
-    <div class="footer">v3.6 purchase-ledger + v3.5 low-bottom-axis / APIキー不要 / GitHub Pages対応</div>
+    <div class="footer">v3.7 compact-ledger + aggregate-PnL + v3.5 low-bottom-axis / APIキー不要 / GitHub Pages対応</div>
   </div>
 
 <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '3.5-low-bottom-axis';
+  const APP_VERSION = '3.7-compact-ledger';
   const STORAGE_KEY = 'btc_cycle_compare_v3_5_data';
   const MODE_KEY = 'btc_cycle_compare_v3_3_mode';
   const SHORT_RANGE_KEY = 'btc_cycle_compare_v3_3_short_range';
@@ -1469,6 +1508,12 @@
   function renderSummary() {
     const m = metrics(), has = records.length > 0;
     setText('buyCount', `${records.length}件`);
+    setText('buyHistoryCount', `${records.length}件`);
+    setText('buyTotalInfo', !has
+      ? '購入履歴を登録すると合計を計算する。'
+      : m.pnlJPY === null
+      ? '現在のBTC/JPY価格が未取得。「価格を更新」または手動円価格入力で計算する。'
+      : `登録した${records.length}件の購入分を合算。取得総額 ${yen(m.costJPY)} ／ 現在評価額 ${yen(m.valueJPY)}。売却済み数量は未反映。`);
     setText('buyQty', has ? `${qtyText(m.qty)} BTC` : '— BTC');
     setText('buyCostJPY', has ? yen(m.costJPY) : '—');
     setText('buyValueJPY', has ? yen(m.valueJPY) : '—');
@@ -1490,22 +1535,43 @@
     const staleUSD = market.usdAt && Date.now() - market.usdAt > 60 * 60 * 1000;
     $('buyStale').textContent = (staleJPY || staleUSD) ? '価格が古い可能性がある。「価格を更新」を押す。' : '';
   }
-  function appendCell(tr, value) { const td=document.createElement('td'); td.textContent=value; tr.appendChild(td); return td; }
+  function appendTradeInfo(parent, label, value) {
+    const pair=document.createElement('div');
+    const dt=document.createElement('dt'); dt.textContent=label;
+    const dd=document.createElement('dd'); dd.textContent=value;
+    pair.append(dt,dd);parent.appendChild(pair);
+  }
   function renderRows() {
-    const tbody = $('buyRows'); tbody.textContent='';
-    for (const r of records.slice().sort((a,b) => a.when.localeCompare(b.when))) {
-      const tr = document.createElement('tr');
-      appendCell(tr, r.when);
-      appendCell(tr, yen(r.priceJPY));
-      appendCell(tr, dollar(r.priceUSD));
-      appendCell(tr, qtyText(r.quantity));
-      appendCell(tr, r.feeJPY ? signedYen(r.feeJPY) : '—');
-      const actions = document.createElement('td');
-      const edit = document.createElement('button'); edit.type='button';edit.textContent='編集';edit.className='buySmall';edit.dataset.buyAction='edit';edit.dataset.buyId=r.id;
-      const del = document.createElement('button');del.type='button';del.textContent='削除';del.className='buySmall muted';del.dataset.buyAction='delete';del.dataset.buyId=r.id;
-      actions.append(edit,del); tr.appendChild(actions); tbody.appendChild(tr);
+    const container=$('buyRows');
+    // Keep expanded entries open on import/edit/price refresh, but default to compact rows.
+    const openIds=new Set(Array.from(container.querySelectorAll('details.buyTrade[open]'),el=>el.dataset.buyId));
+    container.textContent='';
+    for(const r of records.slice().sort((a,b)=>a.when.localeCompare(b.when))){
+      const card=document.createElement('details');card.className='buyTrade';card.dataset.buyId=r.id;
+      card.open=openIds.has(r.id);
+      const summary=document.createElement('summary');summary.className='buyTradeSummary';
+      const lead=document.createElement('span');lead.className='buyTradeLead';
+      const day=document.createElement('span');day.className='buyTradeDate';day.textContent=r.when;
+      const cost=document.createElement('span');cost.className='buyTradeCost';
+      cost.textContent='購入金額 '+yen(r.priceJPY*r.quantity+r.feeJPY);
+      lead.append(day,cost);
+      const trailing=document.createElement('span');trailing.className='buyTradeEnd';
+      const qty=document.createElement('span');qty.className='buyTradeQty';qty.textContent=qtyText(r.quantity)+' BTC';
+      const chevron=document.createElement('span');chevron.className='buyTradeChevron';chevron.textContent='⌄';chevron.setAttribute('aria-hidden','true');
+      trailing.append(qty,chevron);summary.append(lead,trailing);card.appendChild(summary);
+      const body=document.createElement('div');body.className='buyTradeBody';
+      const info=document.createElement('dl');info.className='buyTradeInfo';
+      appendTradeInfo(info,'購入単価（円/BTC）',yen(r.priceJPY));
+      appendTradeInfo(info,'購入単価（ドル/BTC）',dollar(r.priceUSD));
+      appendTradeInfo(info,'数量（BTC）',qtyText(r.quantity));
+      appendTradeInfo(info,'手数料（円）',r.feeJPY?signedYen(r.feeJPY):'—');
+      body.appendChild(info);
+      const actions=document.createElement('div');actions.className='buyTradeActions';
+      const edit=document.createElement('button');edit.type='button';edit.textContent='編集';edit.className='buySmall';edit.dataset.buyAction='edit';edit.dataset.buyId=r.id;
+      const del=document.createElement('button');del.type='button';del.textContent='削除';del.className='buySmall muted';del.dataset.buyAction='delete';del.dataset.buyId=r.id;
+      actions.append(edit,del);body.appendChild(actions);card.appendChild(body);container.appendChild(card);
     }
-    $('buyEmpty').hidden = records.length > 0;
+    $('buyEmpty').hidden=records.length>0;
   }
   function renderAll() { renderSummary(); renderRows(); }
   function formValue() { return { when:$('buyDate').value, priceJPY:$('buyJPY').value, priceUSD:$('buyUSD').value, quantity:$('buyQuantity').value, feeJPY:$('buyFee').value }; }
@@ -1628,6 +1694,7 @@
         editId=r.id;$('buyEditor').open=true;
         $('buyDate').value=r.when;$('buyJPY').value=r.priceJPY;$('buyUSD').value=r.priceUSD??'';$('buyQuantity').value=r.quantity;$('buyFee').value=r.feeJPY;
         $('buySave').textContent='変更を保存';$('buyCancelEdit').hidden=false;
+        $('buyEditor').scrollIntoView({block:'start',behavior:'smooth'});
       }
     });
     $('buyClear').addEventListener('click',()=>{
