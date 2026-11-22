@@ -1,4 +1,4 @@
-const CACHE_NAME = 'btc-cycle-compare-v3-7-compact-ledger';
+const CACHE_NAME = 'btc-cycle-compare-v3-8-avg-usd-estimate';
 const ASSETS = [
   './',
   './index.html',

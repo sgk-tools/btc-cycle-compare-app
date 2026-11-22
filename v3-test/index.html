@@ -197,7 +197,7 @@
       .buyTable td:last-child::before{display:none;}
     }
 
-    /* v3.7: prominent aggregate unrealized P&L and compact per-purchase disclosure. */
+    /* v3.8: visible weighted-average purchase prices and clear estimated USD labels. */
     .buyTotalMetric{grid-column:1/-1;border-color:#44536b;background:linear-gradient(130deg,#152232,#0c131f);padding:16px 15px;}
     .buyTotalMetric .buyMetricLabel{font-size:12px;color:#d4dfed;}
     .buyTotalLine{display:flex;align-items:baseline;gap:15px;flex-wrap:wrap;}
@@ -222,6 +222,9 @@
     .buyTradeInfo div{min-width:0;}
     .buyTradeInfo dt{font-size:10px;color:#9baec4;margin-bottom:5px;}
     .buyTradeInfo dd{font-size:13px;color:#e1ecf9;margin:0;overflow-wrap:anywhere;}
+    .buyAverageMetric{border-color:#3a4a5f;background:#101b2a;}
+    .buyAverageMetric .buyMainNumber{font-size:clamp(15px,2vw,21px);overflow-wrap:anywhere;line-height:1.2;}
+    .buyAverageMetric .buyMetricAux{font-size:10px;line-height:1.5;}
     .buyTradeActions{display:flex;justify-content:flex-end;gap:8px;}
     .buyTradeActions .buySmall{min-height:38px;min-width:58px;font-size:12px;margin:0;}
     @media(max-width:560px){
@@ -293,23 +296,25 @@
           <div class="buyTotalLine"><div class="buyMainNumber buyTotalNumber" id="buyPnlJPY">—</div><div class="buyTotalRate" id="buyPnlJPYpct">—</div></div>
           <div class="buyMetricAux" id="buyTotalInfo">購入履歴の登録後、現在の円価格を取得すると表示する。</div>
         </div>
+        <div class="buyMetric buyAverageMetric"><div class="buyMetricLabel">平均取得単価（円/BTC）</div><div class="buyMainNumber" id="buyAverageJPY">—</div><div class="buyMetricAux">入力した円単価と手数料から算出</div></div>
+        <div class="buyMetric buyAverageMetric"><div class="buyMetricLabel">平均取得単価（ドル/BTC）</div><div class="buyMainNumber" id="buyAverageUSD">—</div><div class="buyMetricAux" id="buyAverageUSDNote">ドル約定単価未入力の場合は参考値</div></div>
         <div class="buyMetric"><div class="buyMetricLabel">登録BTC数量</div><div class="buyMainNumber" id="buyQty">— BTC</div><div class="buyMetricAux">未売却の購入数量を入力</div></div>
-        <div class="buyMetric"><div class="buyMetricLabel">ドルの評価損益</div><div class="buyMainNumber" id="buyPnlUSD">—</div><div class="buyMetricAux" id="buyPnlUSDpct">—</div></div>
+        <div class="buyMetric"><div class="buyMetricLabel" id="buyPnlUSDLabel">ドルの評価損益</div><div class="buyMainNumber" id="buyPnlUSD">—</div><div class="buyMetricAux" id="buyPnlUSDpct">—</div></div>
         <div class="buyMetric"><div class="buyMetricLabel">取得総額（円）</div><div class="buyMainNumber" id="buyCostJPY">—</div><div class="buyMetricAux">入力した手数料を加算</div></div>
         <div class="buyMetric"><div class="buyMetricLabel">現在評価額（円）</div><div class="buyMainNumber" id="buyValueJPY">—</div><div class="buyMetricAux">現在BTC/JPY × 数量</div></div>
-        <div class="buyMetric"><div class="buyMetricLabel">取得総額／現在評価額（ドル）</div><div class="buyMainNumber" style="font-size:15px" id="buyCostUSD">—</div><div class="buyMetricAux" id="buyValueUSD">—</div></div>
+        <div class="buyMetric"><div class="buyMetricLabel" id="buyCostUSDLabel">取得総額／現在評価額（ドル）</div><div class="buyMainNumber" style="font-size:15px" id="buyCostUSD">—</div><div class="buyMetricAux" id="buyValueUSD">—</div></div>
       </div>
       <div class="buyData" id="buyMarketInfo">BTC/JPY・BTC/USD相当の価格未取得</div>
       <div class="buyData warn" id="buyStale"></div>
       <div class="buyHint" id="buyNotes">購入履歴は未登録。</div>
-      <div class="buyHint">平均取得単価：<strong id="buyAverage">—</strong></div>
+      <div class="buyHint" id="buyAverageDetails">ドル平均取得単価は購入時のドル約定価格があればその価格を優先する。未入力の場合、保存済みの日足終値から参考値を計算する。</div>
       <div class="buyButtons"><button id="buyRefresh" type="button" class="primary">価格を更新</button><button id="buyManualApply" type="button">手動円価格を適用</button></div>
       <label class="buyField" style="margin-top:9px">BTC/JPY 現在価格（円/BTC、API取得失敗時などの任意入力）<input id="buyManualJPY" inputmode="decimal" placeholder="例：9,200,000"></label>
       <div class="buyHint" id="buyPriceStatus">円価格は公開取引所API、ドル価格はBTCUSDTから取得する。どちらも売却時の手取り価格ではない。</div>
       <div class="buyNotice" id="buyMessage" role="status" aria-live="polite"></div>
 
       <details id="buyEditor"><summary>購入履歴を貼り付け／登録する</summary>
-        <div class="buyHint">Excelの表をコピーしてそのまま貼り付けられる（CSV・タブ区切り）。列順：購入日、購入価格（円/BTC）、購入価格（ドル/BTC）、数量（BTC）、手数料（円・任意）。ドル単価は省略可能だが、その取引のドル損益は計算できない。価格は1BTC当たりの単価。</div>
+        <div class="buyHint">Excelの表をコピーしてそのまま貼り付けられる（CSV・タブ区切り）。列順：購入日、購入価格（円/BTC）、購入価格（ドル/BTC）、数量（BTC）、手数料（円・任意）。ドル単価は省略可能。未入力なら保存済みBTC/USDの日足終値から参考ドル単価を算出（未取得の場合は未算出）。価格は1BTC当たりの単価。</div>
         <label class="buyField" for="buyPaste">複数取引を一括貼り付け</label>
         <textarea id="buyPaste" spellcheck="false" placeholder="購入日,購入価格（円/BTC）,購入価格（ドル/BTC）,数量（BTC）,手数料（円）&#10;2026-01-15,10000000,65000,0.0123,0&#10;2026-02-01,9800000,64000,0.02,-50"></textarea>
         <div class="buyButtons"><button type="button" class="primary" id="buyImportAppend">貼り付けた履歴を追加</button><button type="button" id="buyImportReplace">履歴を置き換え</button></div>
@@ -395,14 +400,14 @@
       </div>
     </details>
 
-    <div class="footer">v3.7 compact-ledger + aggregate-PnL + v3.5 low-bottom-axis / APIキー不要 / GitHub Pages対応</div>
+    <div class="footer">v3.8 avg-JPY-USD + historical-USD-estimate + v3.7 compact-ledger + v3.5 low-bottom-axis / APIキー不要 / GitHub Pages対応</div>
   </div>
 
 <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '3.7-compact-ledger';
+  const APP_VERSION = '3.8-average-usd-estimate';
   const STORAGE_KEY = 'btc_cycle_compare_v3_5_data';
   const MODE_KEY = 'btc_cycle_compare_v3_3_mode';
   const SHORT_RANGE_KEY = 'btc_cycle_compare_v3_3_short_range';
@@ -1266,6 +1271,7 @@
       state.source = data.source;
       state.savedAt = new Date().toISOString();
       saveData();
+      document.dispatchEvent(new Event('btcCycleHistoryUpdated'));
       renderAll();
       if (!silent) setMessage(`更新完了：${fmtDate(state.candles[0].t)}〜${fmtDate(state.candles[state.candles.length - 1].t)}`);
     } catch (err) {
@@ -1482,20 +1488,54 @@
     if (out.length > 10000) throw Error('一度に登録できるのは最大10,000件');
     return out;
   }
+  // USD purchase-price estimates are read-only; NEVER write them into the user's
+  // original trade records. Historical UTC daily CLOSE is not the execution price.
+  function historicalDollarCloseMap() {
+    const map = new Map();
+    const now = Date.now();
+    const keys = ['btc_cycle_compare_v3_5_data', 'btc_cycle_compare_v3_4_data', 'btc_cycle_compare_v3_3_data'];
+    for (const key of keys) {
+      let parsed;
+      try { const raw = localStorage.getItem(key); if (!raw) continue; parsed = JSON.parse(raw); }
+      catch (_) { continue; }
+      if (!Array.isArray(parsed?.candles)) continue;
+      for (const c of parsed.candles) {
+        const t = Number(c.t), close = Number(c.close);
+        if (!Number.isFinite(t) || !Number.isFinite(close) || close <= 0) continue;
+        if (t < Date.UTC(2017,7,17) || t + 86400000 > now || c.complete === false) continue;
+        if (!map.has(t)) map.set(t, close);
+      }
+      if (map.size) break;
+    }
+    return map;
+  }
+  function buyUTCDate(when) {
+    // A specified purchase time is interpreted as JST (source broker timestamps).
+    // If time is absent, use the provided calendar date as the UTC date.
+    const stamp = when.length > 10
+      ? Date.parse(when.slice(0,10)+'T'+when.slice(11,16)+':00+09:00')
+      : Date.parse(when.slice(0,10)+'T00:00:00Z');
+    return Number.isFinite(stamp) ? Math.floor(stamp / 86400000) * 86400000 : NaN;
+  }
   function metrics() {
     let qty = 0, costJPY = 0, costUSD = 0;
-    let incompleteUSD = 0;
+    let incompleteUSD = 0, estimatedUSD = 0, exactUSD = 0;
+    const historical = historicalDollarCloseMap();
     for (const r of records) {
       qty += r.quantity;
       costJPY += r.priceJPY * r.quantity + r.feeJPY;
-      if (Number.isFinite(r.priceUSD)) costUSD += r.priceUSD * r.quantity;
-      else incompleteUSD++;
+      if (Number.isFinite(r.priceUSD)) { costUSD += r.priceUSD * r.quantity; exactUSD++; }
+      else {
+        const historicClose = historical.get(buyUTCDate(r.when));
+        if (Number.isFinite(historicClose)) { costUSD += historicClose * r.quantity; estimatedUSD++; }
+        else incompleteUSD++;
+      }
     }
     const priceJPY = market.jpy, priceUSD = market.usd;
     const valueJPY = Number.isFinite(priceJPY) ? qty * priceJPY : null;
     const valueUSD = Number.isFinite(priceUSD) ? qty * priceUSD : null;
     return {
-      qty, costJPY, costUSD: incompleteUSD ? null : costUSD, incompleteUSD,
+      qty, costJPY, costUSD: incompleteUSD ? null : costUSD, incompleteUSD, estimatedUSD, exactUSD,
       valueJPY, valueUSD,
       pnlJPY: valueJPY === null || !qty ? null : valueJPY - costJPY,
       pnlUSD: valueUSD === null || incompleteUSD || !qty ? null : valueUSD - costUSD,
@@ -1508,6 +1548,12 @@
   function renderSummary() {
     const m = metrics(), has = records.length > 0;
     setText('buyCount', `${records.length}件`);
+    setText('buyAverageJPY', has ? yen(m.avgJPY) : '—');
+    setText('buyAverageUSD', has ? dollar(m.avgUSD) : '—');
+    setText('buyPnlUSDLabel', m.estimatedUSD ? 'ドルの評価損益（参考）' : 'ドルの評価損益');
+    setText('buyAverageUSDNote', !has ? '購入履歴を登録すると計算' : m.incompleteUSD
+      ? `${m.incompleteUSD}件のドル単価を算出できない。サイクル価格を更新` : m.estimatedUSD
+      ? `参考：${m.estimatedUSD}件を購入日のUTC日足終値で推定` : '登録した約定ドル単価の加重平均');
     setText('buyHistoryCount', `${records.length}件`);
     setText('buyTotalInfo', !has
       ? '購入履歴を登録すると合計を計算する。'
@@ -1519,18 +1565,25 @@
     setText('buyValueJPY', has ? yen(m.valueJPY) : '—');
     setText('buyPnlJPY', has ? signedYen(m.pnlJPY) : '—');
     setText('buyPnlJPYpct', has && m.pnlJPY !== null && m.costJPY > 0 ? pct(m.pnlJPY / m.costJPY * 100) : '—');
-    setText('buyCostUSD', '取得 ' + (has && !m.incompleteUSD ? dollar(m.costUSD) : '—'));
+    setText('buyCostUSDLabel', m.estimatedUSD ? '取得総額／現在評価額（ドル・参考）' : '取得総額／現在評価額（ドル）');
+    setText('buyCostUSD', (m.estimatedUSD ? '取得（参考） ' : '取得 ') + (has && !m.incompleteUSD ? dollar(m.costUSD) : '—'));
     setText('buyValueUSD', '評価 ' + (has ? dollar(m.valueUSD) : '—'));
     setText('buyPnlUSD', has ? signedUSD(m.pnlUSD) : '—');
     setText('buyPnlUSDpct', has && m.pnlUSD !== null && m.costUSD > 0 ? pct(m.pnlUSD / m.costUSD * 100) : '—');
-    setText('buyAverage', `${yen(m.avgJPY)}/BTC ／ ${dollar(m.avgUSD)}/BTC`);
+    setText('buyAverageDetails', !has
+      ? 'ドル平均取得単価は登録した約定単価か購入日の日足終値を使用する。'
+      : m.incompleteUSD
+      ? `ドル単価を算出できない取引が${m.incompleteUSD}件ある。上部の「更新」でBTC/USD履歴を取得してほしい。購入履歴の再登録は不要。`
+      : m.estimatedUSD
+      ? `ドル単価未入力の${m.estimatedUSD}件はBTC/USDTの購入日（UTC）日足終値によるUSD相当の参考値。実際の約定ドル単価とは異なり、USDTとUSDも厳密には別の通貨。ドル損益も参考値であり、手数料・為替の影響は未反映。`
+      : 'ドル平均取得単価は登録したドル約定単価から算出。ドル損益は円建ての手数料を含まない。');
     pnlClass($('buyPnlJPY'), m.pnlJPY);
     pnlClass($('buyPnlUSD'), m.pnlUSD);
     const jp = Number.isFinite(market.jpy) ? yen(market.jpy) : '未取得';
     const us = Number.isFinite(market.usd) ? dollar(market.usd) : '未取得';
     const at = t => t ? new Date(t).toLocaleString('ja-JP', {hour12:false}) : '—';
     setText('buyMarketInfo', `BTC/JPY：${jp}（${market.jpySource || '未取得'}、${at(market.jpyAt)}）\nBTC/USD相当：${us}（${market.usdSource || '未取得'}、${at(market.usdAt)}）`);
-    setText('buyNotes', !has ? '購入履歴は未登録。下の欄から貼り付け可能。' : m.incompleteUSD ? `${m.incompleteUSD}件のドル購入単価が未入力。ドル損益は全件が揃うまで表示しない。円損益は計算可能。` : '円損益には入力手数料を含む。ドル損益は手数料を除く。価格差・税金・売却手数料は未反映。');
+    setText('buyNotes', !has ? '購入履歴は未登録。下の欄から貼り付け可能。' : m.incompleteUSD ? `${m.incompleteUSD}件のドル基準価格が未取得。ドル平均・ドル損益は全件の価格が揃うまで未算出。円損益は表示できる。` : m.estimatedUSD ? `ドル平均・ドル損益は参考値（${m.estimatedUSD}件を日足終値で推定）。円損益には入力手数料を含む。売却済み数量・税金・価格差は未反映。` : '円損益には入力手数料を含む。ドル損益は手数料を除く。価格差・税金・売却手数料は未反映。');
     const staleJPY = market.jpyAt && Date.now() - market.jpyAt > 60 * 60 * 1000;
     const staleUSD = market.usdAt && Date.now() - market.usdAt > 60 * 60 * 1000;
     $('buyStale').textContent = (staleJPY || staleUSD) ? '価格が古い可能性がある。「価格を更新」を押す。' : '';
@@ -1684,6 +1737,7 @@
     $('buyCsv').addEventListener('click',exportCsv);
     $('buyRefresh').addEventListener('click',refreshPrices);
     $('buyManualApply').addEventListener('click',applyManualJPY);
+    document.addEventListener('btcCycleHistoryUpdated', () => renderSummary());
     $('buyRows').addEventListener('click',e=>{
       const btn=e.target.closest('button[data-buy-action]');if(!btn)return;
       const r=records.find(r=>r.id===btn.dataset.buyId);if(!r)return;
